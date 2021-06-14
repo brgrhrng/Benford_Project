@@ -1,0 +1,1237 @@
+# Libraries:----
+
+library(dplyr)
+library(tidyverse)
+library(ggfx) #ggplot layer blending
+library(RColorBrewer) #color palettes
+
+getwd()
+
+
+
+# Function Definitions:----
+
+#Get the probability Benford's law would predict, for a leading digit d
+Pd = function(d){
+  return( log10( 1 + 1/(d) ) )
+}
+
+# Quick check of the above function
+# Compare w/: 
+#     https://en.wikipedia.org/wiki/Benford's_law#Definition
+for (i in (1:9)){
+  print(c(i,Pd(i)))
+}
+
+
+
+# ggplot's geom_line allows you to specify an endcap, but doesn't apply this change to the legend.
+# The below code is a modified version, with consistently round endcaps.
+# Taken directly from this stack overflow answer:
+#   https://stackoverflow.com/questions/54817837/make-rounded-lineends-in-ggplot-both-in-plot-and-in-legend#54818836
+
+library(grid)
+
+GeomLine2 <- ggproto(
+  "GeomLine2", GeomLine,
+  draw_key =  function (data, params, size) {
+    data$linetype[is.na(data$linetype)] <- 0
+    segmentsGrob(0.3, 0.5, 0.7, 0.5, # I modified the x0 / x1 values here too, to shift
+                 # the start / end points closer to the centre in order
+                 # to leave more space for the rounded ends
+                 gp = gpar(col = alpha(data$colour, data$alpha), 
+                           lwd = data$size * .pt, 
+                           lty = data$linetype, 
+                           lineend = "round"),
+                 arrow = params$arrow)
+  })
+
+geom_line2 <- function (mapping = NULL, data = NULL, stat = "identity", position = "identity", 
+                        na.rm = FALSE, show.legend = NA, inherit.aes = TRUE, ...) {
+  layer(data = data, mapping = mapping, stat = stat, 
+        geom = GeomLine2, # this is the only change from geom_line to geom_line2
+        position = position, show.legend = show.legend, inherit.aes = inherit.aes, 
+        params = list(na.rm = na.rm, ...))}
+
+#--- --- - -- - -- -
+
+
+
+# Data loading/exploration:----
+
+# Get the data file
+df = read_csv("data/county_pres_data.csv")
+
+#Exploration
+distinct(df,year) #all good
+distinct(df,state_po) %>% View() #includes district of columbia, plus apparently some NA values...
+distinct(df,party) #no third party data, as of yet, but no NAs
+
+#What's with all the state NAs?
+df %>% rownames_to_column("i") %>% filter(is.na(state_po))
+
+df %>% rownames_to_column("i") %>% filter(is.na(state_po)) %>% View()
+
+
+#What rows are lacking counts?
+# 24 such rows. Two are marked as from y2000/MO. remaining are also is.na(state)
+df %>% filter(is.na(candidatevotes)) %>% View()
+
+
+# Every year has at least some data, for every state & DC (excluding 2020, which was pre-filtered to only include interesting states)
+df %>% filter(!is.na(state_po)) %>% group_by(year,state_po) %>% summarise(n()) %>% group_by(year) %>% summarise(n())
+
+
+
+#1996 data
+#Stitching indiv. files
+
+state_prefix = c("AL","AR","CA","CO","FL","GA","ID","IL","IN","IA","KS","KY","LA","MI","MN","MS","MO","MT","NE","NY",
+                 "NC","ND","OH","OK","PA","SC","SD","TN","TX","VA","WV","WI")
+state_name = c("Alabama",
+                "Arkansas",
+                "California",
+                "Colorado",
+                "Florida",
+                "Georgia",
+                "Idaho",
+                "Illinois",
+                "Indiana",
+                "Iowa",
+                "Kansas",
+                "Kentucky",
+                "Louisiana",
+                "Michigan",
+                "Minnesota",
+                "Mississippi",
+                "Missouri",
+                "Montana",
+                "Nebraska",
+                "New_York",
+                "North_Carolina",
+                "North_Dakota",
+                "Ohio",
+                "Oklahoma",
+                "Pennsylvania",
+                "South_Carolina",
+                "South_Dakota",
+                "Tennessee",
+                "Texas",
+                "Virginia",
+                "West_Virginia",
+                "Wisconsin")
+
+prefix_df = data.frame(state_prefix,state_name)
+
+loose_folder = "data/states_1996/to_combine"
+
+df_combined = df
+for (filename in list.files(loose_folder)){
+  print("-----------")
+  print(filename)
+  state_df = read_csv(str_c(loose_folder,"/",filename))
+  state_df = state_df %>%
+    #rename(republican=Republican,democrat=Democratic,reform=case_when(is.null(state_df$Reform) == FALSE ~ "Reform", TRUE ~ "Independent")) %>%
+    #mutate(year=1996) %>% mutate(state=str_remove(filename,"_1996.csv")) %>% select(state,year,County,republican,democrat,reform)
+    rename(republican=Republican,democrat=Democratic) %>%
+    mutate(year=1996) %>% mutate(state=str_remove(filename,"_1996.csv")) %>% select(state,year,County,republican,democrat)  
+  state_df = left_join(state_df,prefix_df,by=c("state"="state_name")) %>% rename(state_po=state_prefix)
+  state_df = state_df %>%
+    #pivot_longer(cols=republican:reform,names_to="party",values_to="candidatevotes") %>%
+    pivot_longer(cols=republican:democrat,names_to="party",values_to="candidatevotes") %>%
+    select(year,state_po,party,candidatevotes)
+  df_combined = rbind(df_combined,state_df)
+  print("-----------")
+  
+}
+# year state_po party      candidatevotes
+
+#verifyingg checking resulting df
+df_combined %>% filter(year==1996) %>% View()
+
+df_combined %>% distinct(party)
+
+#"committing" 1996 data (ignoring reform, for now)
+df = filter(df_combined,party!="reform")
+
+
+df_combined %>% filter(year==1996) %>% distinct(state_po) #32
+
+
+# The .csv has county data for all states, for every included year, except 2020.
+# The 2020 data has been filtered to only include states with enough counties to be interesting.
+#     Ex. Delaware, with its three counties, will never follow Benford's law. 
+
+c_2020 = df %>% filter(year==2020) %>% group_by(state_po) %>% summarise(counties=n()) %>% arrange(-counties)
+
+#Filtering out other states from previous years
+states_keep = c_2020$state_po
+df_interesting = df %>% filter(state_po %in% states_keep) %>% rename(state=state_po) 
+
+arrange(distinct(df_interesting,state),state)$state == arrange(c_2020,state_po)$state_po #verifying
+
+
+# Pull out leading digits from candidatevotes
+df_interesting = mutate( df_interesting, leading_digit = str_extract(as.character(candidatevotes), "[1-9]") )
+df_interesting = mutate( df_interesting, leading_digit = as.integer(leading_digit) )
+
+#Count them for each year/state/party combo
+#   This will only generate rows for digits that are actually found
+digit_counts = df_interesting %>% group_by(year,state,party,leading_digit) %>% summarise(n=n())
+
+
+#Quick check that we haven't lost any counties (the below tables should be identical)
+c_dg = digit_counts %>% group_by(year,state,party) %>% summarise(counties=sum(n))
+c_og = df_interesting %>% group_by(year,state,party) %>% summarise(counties=n())
+View(c_dg == c_og)
+
+c_dg %>% View()
+
+
+
+#Adding missing count entries, for digits with 0 occurrences
+# This can be done by first pivoting wide, so each digit gets its own column:
+
+# year state party        `1`   `2`   `3`   `4`   `5`   `6`   `7`   `8`   `9`  `NA`
+# –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+# 2000 AL    democrat      15     9    10    18     4     4     2     2     3   NA
+# 2000 AL    republican    21     9     5    12     4     9     2     3     2   NA
+# 2000 AR    democrat      23    16    14     7     3     9     2     1    NA   NA
+# 2000 AR    republican    20    20    17     3     8     1     1     4     1   NA
+
+#And then pivoting back to long format
+
+#digit_counts %>% group_by(year,state,party)
+
+#wide_counts = digit_counts %>% pivot_wider(values_from=c(n),names_from=c(leading_digit))
+
+#Pivot wide, to get a column for each digit
+wide_counts = digit_counts %>% mutate(n=as.integer(n)) %>% mutate(leading_digit = str_c("digit_",as.character(leading_digit))) %>% pivot_wider(values_from=c(n),names_from=c(leading_digit))
+
+#Replace NAs with 0
+wide_counts = wide_counts %>%
+  replace_na(list(
+    digit_1=0,
+    digit_2=0,
+    digit_3=0,
+    digit_4=0,
+    digit_5=0,
+    digit_6=0,
+    digit_7=0,
+    digit_8=0,
+    digit_9=0,
+    "NA"=0
+    )) %>% rename(digit_NA="NA")
+
+
+
+#Check that each state has the correct number of counties, as of 2020
+wide_c_totals = wide_counts %>% mutate(total = sum(digit_1,digit_2,digit_3,digit_4,digit_5,digit_6,digit_7,digit_8,digit_9,digit_NA))
+
+c_2020_totals = rbind(c_2020 %>% mutate(counties=counties/2),c_2020 %>% mutate(counties=counties/2)) %>% arrange(-counties)
+
+c_2020_totals$counties == arrange(filter(wide_c_totals,year==2020),-total)$total #Should be all TRUE
+
+wide_c_totals
+
+#Checking if the # of counties is consistent w/in each year, for each state.
+#If yes, that state should only have two entries in the following table:
+tibble(wide_c_totals) %>% select(-c("year")) %>% distinct(state,party,total) %>% arrange(state) %>% View()
+#   The # of counties in the dataset for CO, MO, and VA change slightly
+
+
+
+#Get back to long format. This should give rows of year/state/party/digit/count
+#   But, we should now have rows corresponding to 0 counts
+long_counts = wide_counts %>% pivot_longer(cols=digit_1:digit_NA) 
+
+# Check # of digts represented for each year/state/party combo.
+# Should alwaybs be 10, if NAs are represented; otherwise, 9.
+long_counts %>% group_by(year,state,party) %>% summarise(digits=n()) %>% View()
+
+
+# long_counts %>% mutate(name=str_remove(name,"digit_")) %>% View()
+#   mutate(digit=case_when(name=="NA" ~ 1,
+#                          TRUE ~ as.integer(name)))
+# 
+# long_counts %>% mutate(name=str_remove(name,"digit_")) %>% select(name) %>% distinct(name) %>% View()
+# 
+# long_counts %>% mutate(name=str_remove(name,"digit_")) %>% mutate(digit=case_when(name=="NA" ~ "NA", TRUE ~ name))
+# 
+
+
+#Adding in total # of counties for each year/state/party combo
+counties = long_counts %>% group_by(year,state,party) %>% summarise(total_counties=sum(value))
+long_counts = left_join(long_counts,counties,by=c('year','state','party'))
+
+#Adding in expected values under benford's law
+long_counts = long_counts %>% mutate(name=str_remove(name,"digit_")) %>%
+  mutate(digit=as.integer(name)) %>% mutate(expected = Pd(digit)*total_counties,expected_p=Pd(digit))
+
+
+long_counts %>% View()
+
+
+###################################
+# Performing chi-square test for each year/state/party combo
+
+chisq_alpha = 0.05
+
+#Bonferoni correction (incredibly conservative)
+#chisq_alpha = 0.05/498
+
+#Per-digit calcs
+chisq_subcounts = long_counts %>% filter(name!="NA",!is.na(name)) %>%
+  mutate(chisq=((value-expected)**2)/expected)
+
+#Getting total chisq for each distribution
+chisq_table = chisq_subcounts %>%
+  group_by(year,state,party) %>%
+  summarise(chisq=sum(chisq),n=n(),df=n()-1)
+
+#Comparing w/ alpha
+chisq_table = chisq_table %>% mutate(chisq_p=pchisq(q=chisq,df=df,lower.tail=FALSE)) %>% mutate("differs_from_benford"=chisq_p < chisq_alpha)
+
+chisq_table %>% filter(state=="AR") %>% View()
+
+
+#pchisq(q=24.5826,df=8,lower.tail=FALSE)
+
+long_counts = long_counts %>% left_join(select(chisq_table,year,state,party,differs_from_benford),
+                          by=c("year","state","party")) %>%
+  mutate(follows_benford = !differs_from_benford)
+
+
+chisq_table %>% View()
+
+
+chisq_table %>% View()
+
+############################################
+
+# OUTDATED TEST CODE (To delete):
+# threshhold = 1
+# 
+# #Check each count, to see if it deviates substantially from the benford prediction
+# long_counts = long_counts %>% mutate(follows_benford =
+#                          case_when(
+#                            abs(value-expected)<threshhold ~ TRUE,
+#                            TRUE ~ FALSE
+#                          )) 
+
+
+#Getting a dataframe of just the predicted distributions under benford, for each state/year
+benford_dist = long_counts %>% group_by(year,state,digit,expected) %>% distinct(year,state,digit,expected)
+
+
+
+long_counts %>% View()
+
+##################
+# GRAPHING
+##################
+
+long_counts %>% distinct(state)
+
+#state_to_graph = "PA"
+#benford_dist_ala = filter(benford_dist,state==state_to_graph)
+#alabama = filter(long_counts,state==state_to_graph) %>% mutate(name=str_remove(name,"digit_"))
+#alabama = mutate(follows_benford = round(runif(2,0,1)))
+
+#Graph variables
+point_size = 3
+line_w = 
+line_alpha = 0.2
+v_offset = .2
+rep_color = "#D41159"
+dem_color = "#1A85FF"
+
+dem_color = "#1A85FF"
+rep_color = "#D41159"
+
+all_states = (long_counts %>% distinct(state))$state
+
+
+#EXample code for plotting first 8 states' distributions
+length(levels(factor(long_counts$state))) #32 states to graph
+
+
+states_to_graph = levels(factor(long_counts$state))[9:16]
+states_to_graph = levels(factor(long_counts$state))[17:26]
+long_counts_filtered = long_counts %>% filter(state %in% states_to_graph)
+benford_dist_filtered = benford_dist %>% filter(state %in% states_to_graph)
+
+sig_marker_size=6
+ggplot(data=long_counts_filtered) +
+  geom_line(data=long_counts_filtered,alpha=0.3,size=1.5,aes(x=name,y=value,group=party,color=party)) +
+  #geom_line(data = benford_dist_filtered, aes(x=digit,y=expected), color="#444444") + #Benford expected values
+  geom_point(data = benford_dist_filtered, aes(x=digit,y=expected), shape=4, color="#444444") + #Benford expected values
+  #geom_rect(ymin=-2.5,ymax=-.5,xmin=0.5,xmax=10,fill="#FFFFFF",color="#AAAAAA",alpha=0.1) +
+  #geom_point(data=filter(long_counts_filtered,follows_benford==TRUE,party=="republican"),aes(x=digit,y=-1),color=rep_color,shape=15,size=2) +
+  #geom_point(data=filter(long_counts_filtered,follows_benford==FALSE,party=="republican"),aes(x=digit,y=-1),color=rep_color,shape=4,size=2,alpha=0.2) +
+  #geom_point(data=filter(long_counts_filtered,follows_benford==TRUE,party=="democrat"),aes(x=digit,y=-2),color=dem_color,shape=15,size=2) +
+  #geom_point(data=filter(long_counts_filtered,follows_benford==FALSE,party=="democrat"),aes(x=digit,y=-2),color=dem_color,shape=4,size=2,alpha=0.2) +
+  #geom_point(data=long_counts_filtered,aes(x=digit,y=value,group=party,color=party),shape=15,size=sig_marker_size,alpha=0.8) +
+  facet_grid(cols=vars(year),rows=vars(state),scales = "free") +
+  #geom_text(aes(x=digit,y=0,label=str("asdf"))) +
+  #geom_text(aes(x=9,y=total_counties,label=differs_from_benford)) +
+  geom_text(data=filter(long_counts_filtered,party=="republican",differs_from_benford==FALSE),
+            aes(x=9,y=total_counties*1/3,label="\u2800\u25A0\u2800"),
+            color=rep_color,alpha=0.1,size=sig_marker_size) +
+  # geom_text(data=filter(long_counts_filtered,party=="republican",differs_from_benford==FALSE),
+  #           aes(x=9,y=total_counties*1/3,label="\u25A7\xu2800"),
+  #           color=rep_color,alpha=0.1,size=sig_marker_size*.9) +
+  geom_text(data=filter(long_counts_filtered,party=="democrat",differs_from_benford==FALSE),
+            aes(x=8,y=total_counties*1/3,label="\u2800\u25A0\u2800"),
+            color=dem_color,alpha=0.1,size=sig_marker_size) +
+  scale_color_manual(values=c(dem_color,rep_color)) +
+  xlab("Leading Digit") +
+  ylab("Count") +
+  theme_classic()
+
+length(levels(factor(long_counts$state)))
+
+#long_counts%>% View()
+
+#LOOP TO SAVE STATE-BY-STATE DISTRIBUTION PLOTS FOR ALL STATES
+#   each individual plot covers 8 states (32 total, so four output files)
+for (i in c(1,9,17,25)){
+  print(i)
+  states_to_graph=levels(factor(long_counts$state))[i:(i+7)]
+  print(states_to_graph)
+  long_counts_filtered = long_counts %>% filter(!is.na(digit)) %>% filter(state %in% states_to_graph)
+  benford_dist_filtered = benford_dist %>% filter(!is.na(digit)) %>% filter(state %in% states_to_graph)
+  
+  sig_marker_size=6
+  plot = ggplot(data=long_counts_filtered) +
+    geom_line(data=long_counts_filtered,alpha=0.3,size=1.5,aes(x=name,y=value,group=party,color=party)) +
+    #geom_line(data = benford_dist_filtered, aes(x=digit,y=expected), color="#444444") + #Benford expected values
+    geom_point(data = benford_dist_filtered, aes(x=digit,y=expected), shape=4, color="#444444") + #Benford expected values
+    #geom_rect(ymin=-2.5,ymax=-.5,xmin=0.5,xmax=10,fill="#FFFFFF",color="#AAAAAA",alpha=0.1) +
+    #geom_point(data=filter(long_counts_filtered,follows_benford==TRUE,party=="republican"),aes(x=digit,y=-1),color=rep_color,shape=15,size=2) +
+    #geom_point(data=filter(long_counts_filtered,follows_benford==FALSE,party=="republican"),aes(x=digit,y=-1),color=rep_color,shape=4,size=2,alpha=0.2) +
+    #geom_point(data=filter(long_counts_filtered,follows_benford==TRUE,party=="democrat"),aes(x=digit,y=-2),color=dem_color,shape=15,size=2) +
+    #geom_point(data=filter(long_counts_filtered,follows_benford==FALSE,party=="democrat"),aes(x=digit,y=-2),color=dem_color,shape=4,size=2,alpha=0.2) +
+    facet_grid(cols=vars(year),rows=vars(state),scales = "free") +
+    #geom_text(aes(x=digit,y=0,label=str("asdf"))) +
+    #geom_text(aes(x=9,y=total_counties,label=differs_from_benford)) +
+    geom_text(data=filter(long_counts_filtered,party=="republican",differs_from_benford==FALSE),
+              aes(x=9,y=total_counties*1/3,label="\u2800\u25A0\u2800"),
+              color=rep_color,alpha=0.1,size=sig_marker_size) +
+    # geom_text(data=filter(long_counts_filtered,party=="republican",differs_from_benford==FALSE),
+    #           aes(x=9,y=total_counties*1/3,label="\u25A7\xu2800"),
+    #           color=rep_color,alpha=0.1,size=sig_marker_size*.9) +
+    geom_text(data=filter(long_counts_filtered,party=="democrat",differs_from_benford==FALSE),
+              aes(x=7.5,y=total_counties*1/3,label="\u2800\u25A0\u2800"),
+              color=dem_color,alpha=0.1,size=sig_marker_size) +
+    scale_color_manual(values=c(dem_color,rep_color)) +
+    xlab("Leading Digit") +
+    ylab("Count") +
+    theme_classic()
+    
+  
+    
+    #states_to_graph[8]
+    ggsave(str_c("STATES_PLOT_",states_to_graph[1],"-",states_to_graph[8],".png"))
+}
+
+#long_counts_filtered %>% View()
+
+#Generating a single chi square summary plot  
+
+summary_table = long_counts %>%
+  group_by(year,state,party) %>%
+  summarise(follows_benford = sum(follows_benford),counties=mean(total_counties)) %>%
+  mutate(follows_benford = case_when(
+    follows_benford == 0 ~ FALSE,
+    follows_benford == 10 ~ TRUE
+  )) %>%
+  mutate(facet_label=str_c(state," (n=",counties,")"))
+
+
+
+#Plotting summary_table as is
+ggplot() +
+  geom_line(data=filter(summary_table,party=="republican"),aes(x=year,y=.75,group=party),color=rep_color,size=.8,alpha=0.5) +
+  geom_line(data=filter(summary_table,party=="democrat"),aes(x=year,y=.25,group=party),color=dem_color,size=.8,alpha=0.5) +
+  
+  geom_point(data=filter(mutate(summary_table,follows_benford=case_when(follows_benford==FALSE~NA,TRUE~follows_benford)),party=="republican"),
+            aes(x=year,y=.75*follows_benford,group=party),color=rep_color,size=2.3) +
+  geom_point(data=filter(mutate(summary_table,follows_benford=case_when(follows_benford==FALSE~NA,TRUE~follows_benford)),party=="democrat"),
+            aes(x=year,y=.25*follows_benford,group=party),color=dem_color,size=2.3) +
+  
+  # geom_text(data=filter(mutate(summary_table,follows_benford=case_when(follows_benford==FALSE~NA,TRUE~follows_benford)),party=="democrat"),
+  #            aes(x=year,y=.26*follows_benford,group=party),color=dem_color,size=2.3,label="\u25D6\u2800\u25D7") +
+  # geom_text(data=filter(mutate(summary_table,follows_benford=case_when(follows_benford==FALSE~NA,TRUE~follows_benford)),party=="democrat"),
+  #           aes(x=year,y=.3*follows_benford,group=party),color=dem_color,size=3.9,label="\u25A0\u25A0") +
+  # geom_text(data=filter(mutate(summary_table,follows_benford=case_when(follows_benford==FALSE~NA,TRUE~follows_benford)),party=="republican"),
+  #           aes(x=year,y=0.76*follows_benford,group=party),color=rep_color,size=2.3,label="\u25D6\u2800\u25D7") +
+  # geom_text(data=filter(mutate(summary_table,follows_benford=case_when(follows_benford==FALSE~NA,TRUE~follows_benford)),party=="republican"),
+  #           aes(x=year,y=0.8*follows_benford,group=party),color=rep_color,size=3.9,label="\u25A0\u25A0") +
+  
+   
+  geom_line(data=filter(mutate(summary_table,follows_benford=case_when(follows_benford==FALSE~NA,TRUE~follows_benford)),party=="republican"),
+            aes(x=year,y=.75*follows_benford,group=party),color=rep_color,size=2.7,lineend="round") +
+  geom_line(data=filter(mutate(summary_table,follows_benford=case_when(follows_benford==FALSE~NA,TRUE~follows_benford)),party=="democrat"),
+            aes(x=year,y=.25*follows_benford,group=party),color=dem_color,size=2.7,lineend="round") +
+
+  #geom_ellipse(data=summary_table,aes(x0 = year, y0 = .25, a = 1, b = .05, angle = 0),fill=dem_color,linetype=0) +
+  #geom_point(data=filter(summary_table,follows_benford==TRUE,party=="republican"),aes(x=year,y=.75,group=party),color=rep_color) +
+  #geom_point(data=filter(summary_table,follows_benford==TRUE,party=="democrat"),aes(x=year,y=.25,group=party),color=dem_color) +
+  #geom_point(data=filter(summary_table,follows_benford==TRUE,party=="republican"),aes(x=year,y=.75,group=party),color=rep_color) +
+  #geom_point(data=filter(summary_table,follows_benford==TRUE,party=="democrat"),aes(x=year,y=.25,group=party),color=dem_color) +
+  scale_x_continuous(limits=c(1999.8,2020.2),breaks=c(2000,2004,2008,2012,2016,2020)) +
+  scale_y_continuous(limits=c(0,1),breaks=NULL) +
+  facet_wrap(facets=c('state'),ncol=4) +
+  xlab("") + ylab("") +
+  ggtitle(str_c("Adherance to Benford Predictions (\u03C7\u00B2, \u03B1=",as.character(chisq_alpha),")")) + #other alpha: \U1D786\
+  theme_classic() + theme_bw() +
+  theme(axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        plot.title = element_text(hjust=0.5),
+        panel.spacing.y = unit(-.1,"cm"),
+        panel.grid.major = element_line(color = "#DDDDDD", size = 1, linetype=1),
+        strip.background = element_blank(),
+        panel.grid.minor=element_blank())#axis.text.x = element_text(angle = -90,vjust=.1,hjust=0))
+
+
+
+#Creating a copy of summary_table, with extra values to extend the plotted lines right and left of their natural end points
+line_margin = .7
+summary_extra = summary_table %>% mutate(year_prev=year-line_margin) %>% mutate(year_after=year+line_margin) %>% pivot_longer(cols=c(year,year_prev,year_after))
+#summary_extra %>% filter(follows_benford==TRUE,!(name %in% c("year_prev","year_after")))
+summary_extra = summary_extra %>% filter(!(follows_benford==FALSE & name %in% c("year_prev","year_after")))
+summary_extra = summary_extra %>% mutate(year=value)
+summary_extra = summary_extra %>% mutate(v_offset=as.integer(party=="republican")/2)
+
+
+
+
+
+#Plot with margins on lines
+ggplot() +
+  geom_line2(data=summary_extra,aes(x=year,y=.25+v_offset,group=party,color=party),size=.8,alpha=0.5) + #Thin background lines
+  geom_point(data=mutate(summary_extra,
+                         follows_benford=case_when(follows_benford==FALSE~NA,
+                                                   TRUE~follows_benford)),
+             aes(x=year,y=(.25+v_offset)*follows_benford,group=party,color=party),size=2.3) +
+  geom_line2(data=mutate(summary_extra,follows_benford=case_when(follows_benford==FALSE~NA,TRUE~follows_benford)),
+            aes(x=year,y=(.25+v_offset)*follows_benford,group=party,color=party),size=2.7,lineend="round") +
+  scale_x_continuous(limits=c(1995.8,2020.2),breaks=c(1996,2000,2004,2008,2012,2016,2020)) +
+  scale_y_continuous(limits=c(0,1),breaks=NULL) +
+  facet_wrap(facets=c('state'),ncol=8) +
+  xlab("") + ylab("") +
+  ggtitle(str_c("Adherance to Benford Predictions (\u03C7\u00B2, \u03B1=",as.character(chisq_alpha),")")) + #other alpha: \U1D786\
+  scale_color_manual(values=c(dem_color,rep_color),labels=c("Democrat","Republican")) + theme_bw() +
+  theme(axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        plot.title = element_text(hjust=0.5),
+        #panel.spacing.y = unit(-.1,"cm"),
+        panel.grid.major = element_line(color = "#DDDDDD", size = 1, linetype=1),
+        strip.background = element_blank(),
+        panel.grid.minor=element_blank(),
+        legend.position="top",
+        legend.margin = margin(0, 0, 0, 0),
+        legend.title=element_blank(),
+        legend.spacing.x = unit(0, "mm"),
+        legend.spacing.y = unit(0, "mm"),
+        plot.margin = unit(c(5,5,5,5),"mm"),
+        axis.text.x = element_text(vjust=.1,size=6)) #angle = -90,hjust=0
+
+
+
+
+
+
+
+# Looking at per-digit chisq's (squared residuals from benford)
+#For8 df/alpha 0.05, the critical chi-square value is 15.507
+# NOTE: a z-test (section below) will be more useful than just eyeballing residuals.
+#       This plot was basically just a first shot at examining this.
+
+ggplot(data=(chisq_subcounts %>% filter(state %in% states_to_graph))) +
+  geom_hline(yintercept = 15.507,linetype=5,size=1,color="#AAAAAA") +
+  geom_line2(aes(group=party,color=party,x=digit,y=chisq),size=1,lineend="round",alpha=.8) +
+  scale_x_continuous(breaks=c(1,2,3,4,5,6,7,8,9)) +
+  ggtitle(str_c("Squared residuals from Benford Predictions (\u03A3=\u03C7\u00B2)")) +
+  #scale_y_continuous(limits=c(0,1),breaks=NULL) +
+  #scale_x_continuous(limits=c(1999.8,2020.2),breaks=c(2000,2004,2008,2012,2016,2020)) +
+  #scale_y_continuous(limits=c(0,1),breaks=NULL) +
+  scale_color_manual(values=c(dem_color,rep_color),labels=c("Democrat","Republican")) +
+  facet_grid(rows=vars(state),cols=vars(year)) +
+  theme_bw() +
+  theme(panel.grid.minor.y = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        legend.position="top",
+        legend.title=element_blank())
+  
+
+  # theme(axis.ticks.y = element_blank(),
+  #       axis.text.y = element_blank(),
+  #       plot.title = element_text(hjust=0.5),
+  #       panel.grid.major = element_line(color = "#DDDDDD", size = 1, linetype=1),
+  #       strip.background = element_blank(),
+  #       panel.grid.minor=element_blank(),
+  #       legend.position="top",
+  #       legend.margin = margin(0, 0, 0, 0),
+  #       legend.title=element_blank(),
+  #       legend.spacing.x = unit(0, "mm"),
+  #       legend.spacing.y = unit(0, "mm"),
+  #       plot.margin = unit(c(5,5,5,5),"mm"),
+  #       axis.text.x = element_text(vjust=.1,size=6)) #angle = -90,hjust=0
+
+ggplot(data=(chisq_subcounts %>% filter(state %in% states_to_graph))) +
+  geom_hline(yintercept = 15.507,linetype=5,size=1,color="#AAAAAA") +
+  geom_line2(aes(group=party,color=party,x=digit,y=chisq),size=2,lineend="round",alpha=.8) +
+  geom_point(aes(group=party,color=party,x=digit,y=chisq),size=4.2,alpha=1) +
+  geom_text(aes(group=party,color=party,x=digit,y=chisq,label=digit),size=3,color="white") +
+  scale_x_continuous(breaks=c(1,2,3,4,5,6,7,8,9)) +
+  ggtitle(str_c("Squared residuals from Benford Predictions (\u03A3=\u03C7\u00B2)")) +
+  #scale_y_continuous(limits=c(0,1),breaks=NULL) +
+  #scale_x_continuous(limits=c(1999.8,2020.2),breaks=c(2000,2004,2008,2012,2016,2020)) +
+  #scale_y_continuous(limits=c(0,1),breaks=NULL) +
+  scale_color_manual(values=c(dem_color,rep_color),labels=c("Democrat","Republican")) +
+  facet_grid(rows=vars(state),cols=vars(year)) +
+  theme_bw() +
+  theme(panel.grid.minor.y = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        legend.position="top",
+        legend.title=element_blank())
+
+high_chisq = chisq_subcounts %>% filter(state %in% states_to_graph) %>% filter(chisq>2.5)
+
+ggplot(data=(chisq_subcounts %>% filter(state %in% states_to_graph))) +
+  geom_hline(yintercept = 15.507,linetype=5,size=1,color="#AAAAAA",alpha=0.5) +
+  geom_line2(aes(group=party,color=party,x=digit,y=chisq),size=2,lineend="round",alpha=.5) +
+  #geom_point(data=high_chisq,aes(group=party,color=party,x=digit,y=chisq+2),size=4.2,alpha=1) +
+  geom_text(data=high_chisq,aes(group=party,color=party,x=digit,y=chisq+2,label=digit),size=3) +
+  scale_x_continuous(breaks=c(1,2,3,4,5,6,7,8,9)) +
+  ggtitle(str_c("Squared residuals from Benford Predictions (\u03A3=\u03C7\u00B2)")) +
+  #scale_y_continuous(limits=c(0,1),breaks=NULL) +
+  #scale_x_continuous(limits=c(1999.8,2020.2),breaks=c(2000,2004,2008,2012,2016,2020)) +
+  #scale_y_continuous(limits=c(0,1),breaks=NULL) +
+  scale_color_manual(values=c(dem_color,rep_color),labels=c("Democrat","Republican")) +
+  facet_grid(rows=vars(state),cols=vars(year)) +
+  theme_bw() +
+  theme(panel.grid.minor.y = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        legend.position="top",
+        legend.title=element_blank())
+
+
+for (i in c(1,9,17,25)){
+  print(i)
+  states_to_graph=levels(factor(long_counts$state))[i:(i+7)]
+  print(states_to_graph)
+ 
+  res = ggplot(data=(chisq_subcounts %>% filter(state %in% states_to_graph))) +
+    geom_hline(yintercept = 15.507,linetype=5,size=1,color="#AAAAAA",alpha=0.5) +
+    geom_line2(aes(group=party,color=party,x=digit,y=chisq),size=2,lineend="round",alpha=.5) +
+    #geom_point(data=high_chisq,aes(group=party,color=party,x=digit,y=chisq+2),size=4.2,alpha=1) +
+    geom_text(data=high_chisq,aes(group=party,color=party,x=digit,y=chisq+2,label=digit),size=3) +
+    scale_x_continuous(breaks=c(1,2,3,4,5,6,7,8,9)) +
+    ggtitle(str_c("Squared residuals from Benford Predictions (\u03A3=\u03C7\u00B2)")) +
+    #scale_y_continuous(limits=c(0,1),breaks=NULL) +
+    #scale_x_continuous(limits=c(1999.8,2020.2),breaks=c(2000,2004,2008,2012,2016,2020)) +
+    #scale_y_continuous(limits=c(0,1),breaks=NULL) +
+    scale_color_manual(values=c(dem_color,rep_color),labels=c("Democrat","Republican")) +
+    facet_grid(rows=vars(state),cols=vars(year)) +
+    theme_bw() +
+    theme(panel.grid.minor.y = element_blank(),
+          panel.grid.minor.x = element_blank(),
+          legend.position="top",
+          legend.title=element_blank())
+  
+  
+   ggsave(str_c("RESIDUALS_PLOT_",states_to_graph[1],"-",states_to_graph[8],".png"),plot=res)
+}
+
+ggsave()
+
+
+for (i in c(1,9,17,25)){
+  states_to_graph=levels(factor(long_counts$state))[i:(i+7)]
+  print(states_to_graph)  
+  
+}
+
+
+
+
+#Plotting per-year chisquare values by state
+# Are they generally close?
+
+
+ggplot(data=chisq_table) +
+  geom_hline(yintercept = 15.507,size=1,color="#559955",alpha=0.7) +
+  geom_hline(yintercept = 13.362,size=1,color="#559955",alpha=0.4) +
+  geom_line2(aes(group=party,color=party,x=year,y=chisq),size=1,lineend="round",alpha=.5) +
+  scale_x_continuous(breaks=c(1996,2000,2004,2008,2012,2016,2020)) +
+  #scale_y_continuous(limits=c(0,20)) +
+  scale_color_manual(values=c(dem_color,rep_color),labels=c("Democrat","Republican")) +
+  #facet_grid(rows=vars(state)) +
+  labs(title="\u03C7\u00B2 values by year",subtitle="Lines correspond to critical values for \u03B1=0.05,\u03B1=0.1 (8 df)") +
+  xlab("Year") + ylab("\u03C7\u00B2 (actual values vs Benford predictions)") +
+  facet_wrap(facets="state",nrow=4) +
+  theme_classic() +
+  theme(panel.grid.minor.y = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        plot.title = element_text(hjust=0.5),
+        plot.subtitle = element_text(hjust=0.5),
+        axis.text.x = element_text(vjust=.1,size=6), #angle = -90,hjust=0
+        legend.position="top",
+        legend.title=element_blank())
+
+
+ggplot(data=chisq_table) +
+  geom_hline(yintercept = 0.05,linetype=5,size=1,color="#AAAAAA",alpha=0.5) +
+  geom_hline(yintercept = 0.1,linetype=5,size=1,color="#AAAAAA",alpha=0.3) +
+  geom_point(aes(group=party,color=party,x=year,y=chisq_p),size=2,lineend="round",alpha=.5) +
+  scale_x_continuous(breaks=c(1996,2000,2004,2008,2012,2016,2020)) +
+  #scale_y_continuous(limits=c(0,0.25)) +
+  scale_color_manual(values=c(dem_color,rep_color),labels=c("Democrat","Republican")) +
+  #facet_grid(rows=vars(state)) +
+  ggtitle("\u03C7\u00B2 test p values by year") +
+  facet_wrap(facets="state") +
+  theme_bw() +
+  theme(panel.grid.minor.y = element_blank(),
+        #panel.grid.minor.x = element_blank(),
+        legend.position="top",
+        plot.title = element_text(hjust=0.5),
+        plot.subtitle = element_text(hjust=0.5),
+        legend.title=element_blank())
+
+
+plot.title = element_text(hjust=0.5),
+axis.text.x = element_text(vjust=.1,size=6)) #angle = -90,hjust=0
+
+
+# Histogram of chisquare values
+
+#Testing for significance at more alphas
+#   sig_at is the highest alpha, of those tested, at which that data point differs
+multi_chisq = chisq_table %>% filter(is.na(chisq_p)==FALSE) %>% mutate(
+  sig_at = case_when(
+    chisq_p < 0.001 ~ "0.001",
+    chisq_p < 0.01 ~ "0.01",
+    chisq_p < 0.05 ~ "0.05",
+    TRUE ~ "Never significant"
+  )
+)
+
+#
+multi_chisq %>% group_by(sig_at) %>% summarise(n=n(),percent=n()/448)
+
+
+#Remember these significance groups are nested; significance at 0.05 means significance at all lower alphas
+
+alphas_n = cbind(
+  chisq_table %>% filter(chisq_p < 0.001) %>% ungroup() %>% summarise("alpha0.001"=n()),
+  chisq_table %>% filter(chisq_p < 0.01) %>% ungroup() %>% summarise("alpha0.01"=n()),
+  chisq_table %>% filter(chisq_p < 0.05) %>% ungroup() %>% summarise("alpha0.05"=n()),
+  chisq_table %>% filter(chisq_p >= 0.05) %>% ungroup() %>% summarise("alphaNever_Significant"=n())
+) %>% pivot_longer(cols=alpha0.001:alphaNever_Significant,
+                   names_to = "alpha",
+                   values_to="n") %>%
+  mutate(alpha=str_remove(alpha,"alpha"),
+         percent=n/448,
+         line=row_number()) %>%
+  mutate(alpha=case_when(
+    alpha == "Never_Significant" ~ "insig",
+    TRUE ~ alpha
+  )) %>% mutate(
+    percent=str_c(round(percent*100,2),"%")
+  )
+
+alphas_n
+
+#graphing
+
+binw = 0.005
+ggplot(data=multi_chisq) + 
+  geom_histogram(data=filter(multi_chisq,!differs_from_benford),aes(x=chisq_p,group=sig_at,fill=sig_at),binwidth = binw,fill="#dacfe8") +
+  geom_histogram(data=filter(multi_chisq,differs_from_benford),aes(x=chisq_p,group=sig_at,fill=sig_at,color="#FFFFFF"),binwidth = binw) +
+  xlab(str_c("\u03C7\u00B2 p (binwidth=",binw,")")) + ylab("count") +
+  ggtitle("Distribution of p-values") +
+  scale_x_continuous(limits=c(0-binw/2,1+binw/2),expand = expansion(mult = c(.01, .01))) +
+  scale_y_continuous(limits=c(0,15), expand = expansion(mult = c(.01, .01))) +
+  guides(color = FALSE) +
+  scale_fill_brewer(name = "Differs at \u03B1", palette = "YlOrRd",direction = - 1) +
+  geom_rect(fill="#7f4659",xmin=0.75,xmax=0.91,ymax=14.7-.2,ymin=14.8-2.5) +
+  geom_text(data=tail(rbind(alphas_n,c("\u03B1","count","percent",0)),1),hjust=0,
+            aes(x=0.75,y=14.8,label=str_c(
+              str_pad(alpha,12,side="right"),
+              str_pad(n,12,side="right"),
+              str_pad(percent,10,"right")
+              ))) +
+  geom_text(data=filter(alphas_n,n != 384),aes(x=0.75,y=14.7-line/2,hjust=0,
+                              label=str_c(
+                                str_pad(alpha,12,side="right"),
+                                str_pad(n,12,side="right"),
+                                str_pad(percent,10,"right")
+                              ))) +
+  geom_text(data=filter(alphas_n,n != 384),aes(x=0.75,y=14.7-line/2,hjust=0,
+                              label=str_c(
+                                str_pad(alpha,12,side="right"),
+                                str_pad(n,12,side="right"),
+                                str_pad(percent,10,"right")
+                              ),
+                              color=alpha)) +
+  geom_text(data=filter(alphas_n,n == 384),aes(x=0.75,y=14.7-line/2,hjust=0,
+                                               label=str_c(
+                                                 str_pad(alpha,12,side="right"),
+                                                 str_pad(n,12,side="right"),
+                                                 str_pad(percent,10,"right")
+                                               )),
+            color="#dacfe8") +
+  scale_color_brewer(name = "Differs at \u03B1=", palette = "YlOrRd",direction = - 1) +
+  #geom_rect(xmin=0.75,xmax=) +
+  theme_classic() +
+  theme(
+    #plot.margin = margin(0, 0, 0, 0, "cm"),
+    panel.spacing = unit(0, "cm"),
+    plot.title = element_text(hjust=0.5),
+    legend.position="top"
+    )
+
+
+
+
+
+#Faceting by party
+
+alphas_n_party = cbind(
+  chisq_table %>% filter(chisq_p < 0.001) %>% ungroup() %>% group_by(party) %>% summarise("alpha0.001"=n()),
+  chisq_table %>% filter(chisq_p < 0.01) %>% ungroup() %>% group_by(party) %>% summarise("alpha0.01"=n()),
+  chisq_table %>% filter(chisq_p < 0.05) %>% ungroup() %>% group_by(party) %>% summarise("alpha0.05"=n()),
+  chisq_table %>% filter(chisq_p >= 0.05) %>% ungroup() %>% group_by(party) %>% summarise("alphaNever_Significant"=n())
+) %>% pivot_longer(cols=alpha0.001:alphaNever_Significant,
+                   names_to = "alpha",
+                   values_to="n") %>%
+  mutate(alpha=str_remove(alpha,"alpha"),
+         percent=n/224,
+         line=case_when(row_number() < 5 ~ row_number(),
+                        TRUE ~ as.integer(row_number()-4))) %>%
+  mutate(alpha=case_when(
+    alpha == "Never_Significant" ~ "insig",
+    TRUE ~ alpha
+  )) %>% mutate(
+    percent=str_c(round(percent*100,2),"%")
+  )
+
+
+binw = 0.005
+ggplot(data=multi_chisq) +
+  #geom_density(aes(x=chisq_p)) +
+  geom_histogram(data=filter(multi_chisq,!differs_from_benford),aes(x=chisq_p,group=sig_at,fill=sig_at),binwidth = binw,fill="#dacfe8") +
+  geom_histogram(data=filter(multi_chisq,differs_from_benford),aes(x=chisq_p,group=sig_at,fill=sig_at,color="#FFFFFF"),binwidth = binw) +
+  xlab(str_c("\u03C7\u00B2 p (binwidth=",binw,")")) + ylab("count") +
+  ggtitle("Distribution of p-values") +
+  scale_x_continuous(limits=c(0-binw/2,1+binw/2),expand = expansion(mult = c(.01, .01))) +
+  scale_y_continuous(limits=c(0,10.2), expand = expansion(mult = c(.01, .01))) +
+  scale_fill_brewer(name = "\u03B1", palette = "YlOrRd",direction = - 1) +
+  geom_rect(fill="#7f4659",xmin=0.75,xmax=0.91,ymax=8.7-.2,ymin=8.7-2.5) +
+  geom_text(data=tail(rbind(alphas_n_party,
+                            c("democrat","\u03B1","count","percent",0),
+                            c("republican","\u03B1","count","percent",0)),2),
+            hjust=0,
+            aes(x=0.75,y=8.9,label=str_c(
+              str_pad(alpha,12,side="right"),
+              str_pad(n,12,side="right"),
+              str_pad(percent,10,"right")
+            ))) +
+  geom_text(data=filter(alphas_n_party,alpha != "insig"),aes(x=0.75,y=8.7-line/2,hjust=0,
+                                               label=str_c(
+                                                 str_pad(alpha,12,side="right"),
+                                                 str_pad(n,12,side="right"),
+                                                 str_pad(percent,10,"right")
+                                               ))) +
+  geom_text(data=filter(alphas_n_party,alpha != "insig"),aes(x=0.75,y=8.7-line/2,hjust=0,
+                                               label=str_c(
+                                                 str_pad(alpha,12,side="right"),
+                                                 str_pad(n,12,side="right"),
+                                                 str_pad(percent,10,"right")
+                                               ),
+                                               color=alpha)) +
+  geom_text(data=filter(alphas_n_party,alpha == "insig"),aes(x=0.75,y=8.7-line/2,hjust=0,
+                                               label=str_c(
+                                                 str_pad(alpha,12,side="right"),
+                                                 str_pad(n,12,side="right"),
+                                                 str_pad(percent,10,"right")
+                                               )),
+            color="#dacfe8") +
+  geom_label(data=distinct(ungroup(multi_chisq),party),
+            mapping = aes(label=str_to_title(party),x=0.5,y=9.5,size=10,color="#000000")) +
+  scale_color_brewer(name = "\u03B1", palette = "YlOrRd",direction = - 1) +
+  guides(color = FALSE, size = FALSE) +
+  #geom_hline(yintercept=10.2) +
+  facet_wrap(facets="party",ncol=1) +
+  theme_bw() +
+  theme(
+    #plot.margin = margin(0, 0, 0, 0, "cm"),
+    panel.spacing = unit(.3, "cm"),
+    plot.title = element_text(hjust=0.5),
+    legend.position="top",
+    strip.background = element_blank(),
+    strip.text = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()
+  )
+
+
+
+
+
+
+
+
+
+
+str_length(alpha)
+
+str_pad("0.005",10,side="right")
+
+
+
+# Summary info regarding multiple comparisons problem
+#   the expected rate of type two errors due to noise is much less than the
+#   frequency of non-benford cases we observed, whether you lower alpha or keep it at .05
+#   SO- you can't dismiss our results on that basis.
+
+mc_table = data.frame(alpha=c(0.05,0.01,0.001,0.05/384)) %>%
+  mutate(p_no_t2=round((1-alpha)**384,5),
+         expected_t2=alpha*384)
+
+mc_table
+
+#Write to file
+write.csv(mc_table,"mc_table.csv")
+
+
+#############################################
+# Evaluating per-digit benfordness with z-test
+#############################################
+
+# z-scores calculated per eqn 7 of Nigrini 1996:
+#file:///C:/Users/bgroc/Downloads/nigrini%201996.pdf
+#referenced by: file:///C:/Users/bgroc/Downloads/The_Effective_Use_of_Benfords_Law_to_Assist_in_De.pdf
+
+long_counts_filtered %>% View()
+# Remember: prior differs_from_benford/follows_benford bools are per distribution, not per digit
+
+#Getting standard deviation for each digit
+# sd = sqrt(sample variance)
+# sample variance = 
+# sd = sqrt(expected_proportion * (1-expected proportion) / n_observations)
+z_table = long_counts %>% filter(!is.na(digit)) %>% 
+  mutate(obs_proportion=value/total_counties) %>%
+  mutate(sd_digit=sqrt(expected_p * (1-expected_p) / total_counties)) %>%
+  mutate(abs_residual=abs(obs_proportion-expected_p)) %>%
+  mutate(cont_correction=1/(2*total_counties)) %>%
+  mutate(apply_correction=(cont_correction<abs_residual)) %>%
+  mutate(z_stat=(abs_residual-cont_correction*apply_correction)/sd_digit) %>%
+  mutate(z_sig=(z_stat>1.96))
+
+z_table = z_table %>% select(year,state,party,digit,total_counties,expected,observed=value,expected_p,obs_proportion,sd_digit,abs_residual,cont_correction,apply_correction,z_stat,z_sig)
+
+z_table %>% View()
+
+z_table %>% filter(z_sig==TRUE) %>% View()
+
+write.csv(z_table,"Z_scores.csv")
+
+
+z_table %>% filter(z_sig==TRUE) %>% write.csv("Z_scores_significant.csv")
+#z_critical (alpha 0.05): 1.96
+#if z > z_critical, the observed proportion differs significantly from the benford prediction
+
+
+
+
+ggplot(data=filter(z_table,state %in% states_to_graph)) + 
+  geom_line2(aes(x=digit,y=z_stat,group=party,color=party),size=1.2,alpha=.5) +
+  geom_hline(yintercept=1.96,linetype=5,alpha=0.4) +
+  facet_grid(cols=vars(year),rows=vars(state),scales = "free") +
+  scale_color_manual(values=c(dem_color,rep_color)) +
+  #geom_point(data=filter(z_table,state %in% states_to_graph,z_sig),aes(group=party,color=party,x=digit,y=3),size=4.2,alpha=1) +
+  geom_point(data=filter(z_table,state %in% states_to_graph,z_sig),aes(group=party,color=party,x=digit,y=z_stat),shape=1,size=3,alpha=1) +
+  #geom_text(data=filter(z_table,state %in% states_to_graph,z_sig),aes(group=party,color=party,x=digit,y=-.5,label=digit)) +
+  geom_text(aes(group=party,color=party,x=digit,y=-.4-.8*(party=="republican"),label=digit),size=2.5,alpha=0.5) +
+  geom_point(data=filter(z_table,state %in% states_to_graph,z_sig),aes(group=party,color=party,x=digit,y=-.4-.8*(party=="republican")),size=3.5) +
+  geom_text(data=filter(z_table,state %in% states_to_graph,z_sig),aes(group=party,color=party,x=digit,y=-.4-.8*(party=="republican"),label=digit),size=2.5,color="white") +
+  #geom_text(data=filter(z_table,state %in% states_to_graph,z_sig),aes(group=party,color=party,x=digit,y=3,label=digit),size=3,color="white") +
+  scale_x_continuous(breaks=c(1,2,3,4,5,6,7,8,9)) +
+  scale_y_continuous(limits = c(-1.9,4)) +
+  xlab("Digit") + ylab("Z Statistic") +
+  ggtitle("Deviation of Digits from Benford Predictions (Z statistic, alpha=0.05)") +
+  theme_classic()
+
+ggplot(data=filter(z_table,state %in% states_to_graph)) + 
+  #geom_line2(aes(x=digit,y=z_stat,group=party,color=party),size=1.2,alpha=.5) +
+  #geom_hline(yintercept=1.96,linetype=5,alpha=0.4) +
+  facet_grid(cols=vars(year),rows=vars(state),scales = "free") +
+  scale_color_manual(values=c(dem_color,rep_color)) +
+  #geom_point(data=filter(z_table,state %in% states_to_graph,z_sig),aes(group=party,color=party,x=digit,y=3),size=4.2,alpha=1) +
+  #geom_point(data=filter(z_table,state %in% states_to_graph,z_sig),aes(group=party,color=party,x=digit,y=z_stat),shape=1,size=3,alpha=1) +
+  #geom_text(data=filter(z_table,state %in% states_to_graph,z_sig),aes(group=party,color=party,x=digit,y=-.5,label=digit)) +
+  geom_text(aes(group=party,color=party,x=digit,y=-.4-.7*(party=="republican"),label=digit),size=2) +
+  geom_point(data=filter(z_table,state %in% states_to_graph,z_sig),aes(group=party,color=party,x=digit,y=-.4-.7*(party=="republican")),size=5,shape=15) +
+  #geom_text(data=filter(z_table,state %in% states_to_graph,z_sig),aes(group=party,color=party,x=digit,y=3,label=digit),size=3,color="white") +
+  scale_x_continuous(breaks=c(1,2,3,4,5,6,7,8,9)) +
+  scale_y_continuous(limits = c(-1.9,0)) +
+  xlab("Digit") + ylab("Z Statistic") +
+  ggtitle("Deviation of Digits from Benford Predictions (Z statistic, alpha=0.05)") +
+  theme_classic()
+
+
+#############################
+# AVERAGES/SUMMARY STATISTICS
+#############################
+
+digit_averages = long_counts %>%
+  filter(!is.na(digit)) %>%
+  mutate(obs_proportion=value/total_counties) %>%
+  group_by(digit,party) %>%
+  summarise("Expected"=mean(expected_p),"Observed"=mean(obs_proportion))
+
+digit_averages_wide = digit_averages %>% pivot_wider(names_from=party,values_from=c('Observed %'))
+
+digit
+
+ggplot(data=digit_averages) +
+  geom_col(data=filter(digit_averages,party=="democrat"),
+           aes(group=party,x=digit,y=Expected),fill="#BB9999",alpha=0.5) +
+  geom_point(aes(x=digit,y=Observed,color=party)) +
+  ggtitle("\"Average\" distributions across all states, by party") +
+  scale_x_continuous(breaks=c(1,2,4,5,6,7,8,9)) +
+  scale_color_manual(values=c(dem_color,rep_color),labels=c("Democrat","Republican")) +
+  theme_bw()
+
+#state averages, using chi-square
+state_avgs=long_counts %>% filter(digit==1) %>% #differs_from_benford is per yearly distribution, so any digit will do
+  group_by(year,state,party,differs_from_benford) %>% arrange(state,differs_from_benford) %>% 
+  select(year,state,party,differs_from_benford) %>%
+  group_by(state,party,differs_from_benford) %>% summarise(years=n()) %>%
+  pivot_wider(names_from=differs_from_benford,values_from=years) %>%
+  rename("follow_benford"='FALSE','deviate'='TRUE') %>%
+  mutate("percent_follow"=follow_benford/7)
+
+#NAs -> 0
+state_avgs = state_avgs %>% mutate(percent_follow=case_when(
+  is.na(percent_follow)~0,
+  TRUE ~ percent_follow
+))
+
+z_table %>% filter(state=="IA") %>% View()
+
+state_avgs %>% View()
+
+#Average of the averages
+#   OR, grand mean of (% of years following benford), pooling by state
+state_avgs %>% group_by(party) %>% summarise(mean(percent_follow))
+
+
+#How many individual digits follow/don't follow benford (Z-test data)?
+digit_z_avgs=z_table %>%
+  group_by(year,state,party,z_sig) %>%
+  summarise(percent=n()) %>%
+  pivot_wider(names_from=z_sig,values_from=c("percent")) %>%
+  rename("follow_benford"='FALSE','deviate'='TRUE') %>%
+  mutate("percent_follow"=follow_benford/9)
+
+#NAs->0 (not strictly necessary)
+digit_z_avgs = digit_z_avgs %>% mutate(percent_follow=case_when(
+  is.na(percent_follow)~0,
+  TRUE ~ percent_follow
+))
+
+digit_z_avgs %>% View()
+
+digit_z_avgs %>% group_by(party) %>% summarise(mean(percent_follow))
+#kinda misleading for a couple reasons ^
+
+
+z_table %>% View()
+
+
+
+
+
+
+
+
+
+
+
+################################
+# TESTING CODE (to be removed):
+################################
+
+
+scrap_df=rbind(long_counts%>%filter(state %in% states_to_graph,party=="republican"))
+
+scrap_df_d=rbind(long_counts%>%filter(state %in% states_to_graph,party=="democrat"),tail(long_counts,1))
+
+      
+ggplot(data=long_counts_filtered) +
+  geom_line(data=scrap_df,alpha=0.3,size=1.5,aes(x=name,y=value,group=party,color=party)) +
+  #geom_line(data = benford_dist_filtered, aes(x=digit,y=expected), color="#444444") + #Benford expected values
+  #geom_point(data = benford_dist_filtered, aes(x=digit,y=expected), shape=4, color="#444444") + #Benford expected values
+  #geom_rect(ymin=-2.5,ymax=-.5,xmin=0.5,xmax=10,fill="#FFFFFF",color="#AAAAAA",alpha=0.1) +
+  #geom_point(data=filter(long_counts_filtered,follows_benford==TRUE,party=="republican"),aes(x=digit,y=-1),color=rep_color,shape=15,size=2) +
+  #geom_point(data=filter(long_counts_filtered,follows_benford==FALSE,party=="republican"),aes(x=digit,y=-1),color=rep_color,shape=4,size=2,alpha=0.2) +
+  #geom_point(data=filter(long_counts_filtered,follows_benford==TRUE,party=="democrat"),aes(x=digit,y=-2),color=dem_color,shape=15,size=2) +
+  #geom_point(data=filter(long_counts_filtered,follows_benford==FALSE,party=="democrat"),aes(x=digit,y=-2),color=dem_color,shape=4,size=2,alpha=0.2) +
+  facet_grid(cols=vars(year),rows=vars(state),scales = "free") +
+  #geom_text(aes(x=digit,y=0,label=str("asdf"))) +
+  #geom_text(aes(x=9,y=total_counties,label=differs_from_benford)) +
+  #geom_text(data=filter(long_counts_filtered,party=="republican",differs_from_benford==FALSE),
+  #          aes(x=9,y=total_counties*1/3,label="\u2800\u25A0\u2800"),
+  #          color=rep_color,alpha=0.1,size=sig_marker_size) +
+  # geom_text(data=filter(long_counts_filtered,party=="republican",differs_from_benford==FALSE),
+  #           aes(x=9,y=total_counties*1/3,label="\u25A7\xu2800"),
+  #           color=rep_color,alpha=0.1,size=sig_marker_size*.9) +
+  #geom_text(data=filter(long_counts_filtered,party=="democrat",differs_from_benford==FALSE),
+  #          aes(x=7.5,y=total_counties*1/3,label="\u2800\u25A0\u2800"),
+  #          color=dem_color,alpha=0.1,size=sig_marker_size) +
+  scale_color_manual(values=c(rep_color,dem_color)) +
+  xlab("Leading Digit") +
+  ylab("Count") +
+  theme_classic()
+
+
+
+
+
+
+#chisq.test(obs,exp)
+Xsq = chisq.test(test_dist$value,test_dist$expected_p)
+
+#Remember: if p<alpha, we reject the null hypothesis that observed == expected
+
+
+Xsq$p.value
+
+
+long_counts %>% pivot_wider(names_from=digit,values_from=expected)
+
+asdf = long_counts %>% select(year,state,party,digit,value,expected)
+asdf = asdf %>% pivot_wider(names_from=digit,values_from=c(value,expected))
+
+#wide_counts %>% mutate((digit_1,digit_2))
+
+test_e = c(1,2,3,4,5)
+test_o = c(2,2,4,5,5)
+
+#asdf %>% mutate(Xsq_p=chisq.test(test_o,test_o)$p.value)
+
+asdf %>% select(-c(value_NA,expected_NA)) %>%
+  mutate(Xsq_p=chisq.test(c(value_1,value_2,value_3,value_4,value_5,value_6,value_7,value_8,value_9),
+                          c(expected_1,expected_2,expected_3,expected_4,expected_5,expected_6,expected_7,expected_8,expected_9))$p.value) %>%
+  select(year,state,party,Xsq_p) %>% View()
+
+
+
+asdf %>% select(-c(value_NA,expected_NA)) %>%
+  mutate(Xsq_p=chisq.test(c(value_1,value_2,value_3,value_4,value_5,value_6,value_7,value_8,value_9),
+                          c(expected_1,expected_2,expected_3,expected_4,expected_5,expected_6,expected_7,expected_8,expected_9))$parameter) %>%
+  select(year,state,party,Xsq_p) %>% View()
+
+
+asdf %>% select(-c(value_NA,expected_NA)) %>% 
+
+  
+#test_row=tibble(rbind(
+#  c(2000,"test","democrat",1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10)
+#))
+
+#str(test_row[1])
+
+#test_row[[1]]
+
+#colnames(test_row) = colna
+
+  
+#rbind(asdf,tibble)
+
+
+test_row = head(asdf,1)
+test_row[1,] = list(2000,"test","democrat",1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,
+                    1.0/55,2.0/55,3.0/55,4.0/55,5.0/55,6.0/55,7.0/55,8.0/55,9.0/55,10.0/55)
+
+sum(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0)
+
+test_df = rbind(head(asdf,3),test_row)
+
+test_df %>% select(-c(value_NA,expected_NA)) %>%
+  mutate(Xsq_p=chisq.test(c(value_1,value_2,value_3,value_4,value_5,value_6,value_7,value_8,value_9),
+                          c(expected_1,expected_2,expected_3,expected_4,expected_5,expected_6,expected_7,expected_8,expected_9))$p.val) %>%
+  select(year,state,party,Xsq_p) %>% View()
+
+
+long_counts %>% mutate()
+
+test_df %>% select(-c(value_NA,expected_NA)) %>% mutate()
+
+
+chisq.test
+
+
+asdf %>% View()
+#0.30103	0.1760913	0.1249387	0.09691001	0.07918125	0.06694679	0.05799195	0.05115252	0.04575749
+#15       9      10      18       4       4       2       2       3    
+
+
+ggplot(data=alabama) +
+  geom_point(data=filter(alabama,follows_benford==TRUE,party=="republican"),aes(x=digit,y=0),color=rep_color,shape=15,size=5.5) +
+  geom_point(data=filter(alabama,follows_benford==FALSE,party=="republican"),aes(x=digit,y=0),color=rep_color,shape=4,size=5.5) +
+  geom_point(data=filter(alabama,follows_benford==TRUE,party=="democrat"),aes(x=digit,y=0.1),color=dem_color,shape=15,size=5.5) +
+  geom_point(data=filter(alabama,follows_benford==FALSE,party=="democrat"),aes(x=digit,y=0.1),color=dem_color,shape=4,size=5.5) +
+  facet_wrap(facets="year",nrow=1) +
+  theme_classic()
+
+
+
+
+
+# ggplot(data=alabama,aes(x=name,y=value,color=party,group=party)) +
+#   geom_line(size = 2,alpha=0.2) +
+#   #geom_point(shape="\u25D7",size=2,aes(fill=party)) +
+#   facet_wrap(facets="year") +
+#   #geom_text(aes(x=name,y=value,label="\u2800\u25EF\u2800"),size=5)+
+#   #geom_text(aes(x=name,y=value,label="\u2800\u25C9\u2800"),size=5,color="#000000")+
+#   #geom_text(aes(x=name,y=value,label="\u2800\u25D6\u2800"),size=5,color="#FFFFFF")+  
+#   geom_text(aes(x=name,y=value+v_offset,label="\u2800\u25FE\u2800"),size=point_size) + #Background squares
+#   geom_text(aes(x=name,y=value+v_offset,label="\u2800\u25D7\u2800"),size=point_size) + #Background right crescents
+#   geom_text(aes(x=name,y=value+v_offset,label="\u2800\u25D6\u2800"),size=point_size) + #Background left crescents
+#   geom_text(aes(x=name,y=value+v_offset,label="\u2800\u25CF\u2800"),size=point_size,color="#FFFFFF") + #White inner fill
+#   geom_text(data=filter(alabama,party=="republican",follows_benford==TRUE),aes(x=name,y=value+v_offset,label="\u2800\u25D6\u2800"),color=rep_color,size=point_size)+
+#   geom_text(data=filter(alabama,party=="democrat",follows_benford==TRUE),aes(x=name,y=value+v_offset,label="\u2800\u25D7\u2800"),color=dem_color,size=point_size)+
+#   #  facet_wrap(facets="year",nrow=1) +
+#   ggtitle(sprintf('5\u25D7\U1F418')) +
+#   scale_color_manual(values=c("#1A85FF","#D41159")) +
+#   theme_classic() #+
+#   #theme(text=element_text(size=16, 
+#                           #       family="Comic Sans MS"))
+#                           #       family="CM Roman"))
+#                           #       family="TT Times New Roman"))
+#                           #       family="Sans"))
+#                           family="TT Courier New"))
+
+
+
+
+
+
+
+
+  
+  #theme_bw()?
+windowsFonts() 
+
+#df_interesting %>% View()
+  
+#str_extract(candidatevotes))
+#str_extract("55213","[1-9]")
+
+#str_extract("55213","[1-9]")

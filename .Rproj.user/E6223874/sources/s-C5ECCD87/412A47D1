@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1621528359318.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "412A47D1",
+    "lastKnownWriteTime" : 1621177726,
+    "last_content_update" : 1621177726,
+    "path" : "~/Desktop/Pigmentation_Project/analysis.rmd",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "320,64",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

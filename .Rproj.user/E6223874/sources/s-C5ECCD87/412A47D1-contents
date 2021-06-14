@@ -1,0 +1,985 @@
+---
+title: "Final Project Analysis"
+author: "Brooks Groharing"
+date: "5/14/2021"
+output: html_document
+---
+
+```{r package setup, include=FALSE, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE}
+getwd()
+library(edgeR)
+library(limma)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+```
+
+### 1.
+```{r Building_SampleList, include=FALSE, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE}
+path_to_featureCounts = "results/separate/gene-expression"
+
+# Get a list of paths from  the gene expression results directory
+fc_paths = tibble(list.files(path=path_to_featureCounts,full.names=TRUE))
+colnames(fc_paths) = c("path")
+
+# Pulling out only the trimmed output files
+fc_paths = filter(fc_paths,str_detect(path,"featureCounts.txt.trim"))
+
+# Convert from data_frame to a list
+fc_list = fc_paths$path
+
+#Building a sample reference table.
+# This code uses substring matching to pull variables out of the filepath.
+# This means it will break on files with different naming conventions.
+SampleTable = tibble(fc_list) %>%
+  mutate(path=fc_list) %>%
+  mutate(temp=str_extract(path,"(?<=_)[:digit:]+C(?=_)")) %>%
+  mutate(pupal_stage=str_extract(path,"p[:digit:]+(?=_)")) %>%
+  mutate(DSPR_phenotype=str_extract(path,"(?<=_)[:digit:]+(?=_)")) %>%
+  mutate(ID=str_extract(path,"(?<=gene-expression/)(.)+(?=.hisat2.featureCounts)")) %>%
+  mutate(bio_replicate=str_extract(path,"(?<=_)R[:digit:]+(?=_)")) %>%
+  mutate(lane=str_extract(path,"(?<=_)L[:digit:]+(?=.hisat2.featureCounts)")) %>%
+  select(ID,temp,pupal_stage,DSPR_phenotype,bio_replicate,lane,path)
+
+# NOTES ON MODEL (thanks, Dr. Everman):
+# In a differential expression analysis, including an interaction term makes the assumption that
+# you've accounted for all the variation in each incorporated variable.
+
+# This doesn't hold true for pupal stage, across all our samples, because some were measured only at P7.
+# SO, to incorporate pupal stage in the model, I need to filter out these samples.
+#     (Alternatively, we could try using all the data, but incorporating pupal stage only as an additive term. I didn't build 
+#     such a model for this assignment.)
+
+
+# Summary table of pupal stage replication by sample.
+SampleTable %>% group_by(temp,bio_replicate,DSPR_phenotype,lane) %>% summarise(pupal_replicates=n())
+
+
+# If you filter out the samples with < 3 pupal replicates,that leaves four phenotypes we can analyze.
+# These 4 genotypes were measured across the pupal stages in every lane, at both temperatures, across the 3 replicates.
+#     (4 lanes * 2 temps * 3 bio replicates = 24 samples)
+phenos_to_study = SampleTable %>% 
+  group_by(temp,bio_replicate,DSPR_phenotype,lane) %>%
+  summarise(pupal_replicates=n()) %>%
+  filter(pupal_replicates==3) %>%
+  group_by(DSPR_phenotype) %>%
+  summarise(total_samples=n())
+
+phenos_to_study
+
+# Filter out the phenotypes without stage replication
+SampleSubset = SampleTable %>%
+  filter(DSPR_phenotype %in% phenos_to_study$DSPR_phenotype)
+
+# Verifying the above step
+SampleSubset %>% distinct(DSPR_phenotype) #11051 11123 11150 11322
+```
+
+```{r Constructing_DGE, include=FALSE, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE}
+#Load the subset of fully replicated samples from file
+DGE_Subset=readDGE((SampleSubset$path), columns = c(1,3))
+
+# Sanity Check
+#   24 samples/stage x 3 stages = 72 files/phenotype
+#   Across 4 phenotypes, that should add up to 288 files
+dim(DGE_Subset) #      17610   288
+SampleSubset %>% distinct(ID) #288  (Each file has a unique "ID")
+
+# Adding name columns
+colnames(DGE_Subset) = SampleSubset$ID
+colnames(DGE_Subset)
+
+# Populate DGE_subset$Samples with data for each variable
+DGE_Subset$samples$temp = SampleSubset$temp #Temperature
+DGE_Subset$samples$stage = SampleSubset$pupal_stage #Pupal Stage
+DGE_Subset$samples$pheno = SampleSubset$DSPR_phenotype #Phenotype
+
+# Look at all those data
+DGE_Subset$Samples
+
+# Building groups object
+#   Group is the combination of temp/pheno/stage for a given sample
+#   2 temp * 4 phenotypes * 3 pupal stages = 24 levels
+groups = interaction(SampleSubset$temp,SampleSubset$DSPR_phenotype,SampleSubset$pupal_stage) #48 levels
+levels(groups) #n=24
+
+# Adding groups to DGE object
+DGE_Subset$samples$group = groups
+
+
+
+# Finally, normalize the counts relative to their lengths, with calcNormFactors
+
+# https://www.rdocumentation.org/packages/edgeR/versions/3.14.0/topics/calcNormFactors
+
+# Problem:
+# calcNormFactors() and filterByExpr() default to converting the lib sizes to counts per million, using cpm()
+# This means incredibly low counts will yield effectively 0 lib size.
+# EdgeR functions can't deal with these values, and will throw the following error when they encounter them:
+#   "Error in cpm.default(y, lib.size = lib.size) : 
+#       library sizes should be finite and non-negative"
+
+
+
+# DGE_Subset has 2 such samples, out of 288
+DGE_Subset$samples %>% arrange(lib.size)
+
+# p12_18C_R3_11150_L3
+# p12_18C_R3_11150_L4
+
+# Per the fastp reports, the read quality is consistently fine in these samples, with only a tiny % of reads trimmed as part of QC
+# They just didn't have very many reads to begin with.
+
+# For the sake of calculating normals, I'll just filter those samples out.
+
+
+
+#lib.size below which to trim a file
+threshhold_expr = 1000
+
+#Indices of samples to keep/exclude
+#   columns in $counts and rows in $sample both correspond to individual files
+keep_i=which(DGE_Subset$samples$lib.size > threshhold_expr)
+exclude_i=which(DGE_Subset$samples$lib.size <= threshhold_expr)
+
+# filtering DGE_Subset$counts
+DGE_Subset$counts=DGE_Subset$counts[,keep_i]
+
+# filtering DGE_Subset$samples
+DGE_Subset$samples = (DGE_Subset$samples %>% filter(lib.size>threshhold_expr))
+
+
+#Finally, generate normalization factors for the DGE
+DGE_Subset = calcNormFactors(DGE_Subset)
+
+
+```
+
+```{r DGE_Cleanup_TMM, include=FALSE, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE}
+
+# I could not for the life of me get the TMM normalization method to work with this dataset.
+# What I ended up doing instead, was running actors using method="RLE"  (in the next code chunk)
+
+# I've included my earlier failed attempts in this chunk, commented out.
+
+
+
+#Identifying lowly expressed genes with edgeR::filterByExpr()
+#   https://rdrr.io/bioc/edgeR/man/filterByExpr.html
+
+#filterByExpr(y=DGE_Subset,group=DGE_Subset$samples$group)
+#keep.expr <- filterByExpr(y=DGE_Subset,group=DGE_Subset$samples$group)
+
+#   "Error in cpm.default(y, lib.size = lib.size) : 
+#       library sizes should be finite and non-negative"
+
+
+#By default, lib.size=colSums(y)
+#colSums(DGE_Subset) does in fact throw an error.
+
+#Maybe there's some other way to extract the library sizes?
+
+#edgeR::effectiveLibSizes works like colSums(), except it multiplies in
+#   the model's normlization factors.
+#Since I haven't run calcNormFactors(), DGE_subset's$norm.factors is a vector of 1s.
+#So in theory, effectiveLibSizes(DGE_subset) == colSums(DGE_subset)
+# https://rdrr.io/bioc/edgeR/man/effectiveLibSizes.html
+
+#libsizes = effectiveLibSizes(DGE_Subset)
+#   hey, this runs!
+
+# keep.expr = filterByExpr(y=DGE_Subset,
+#               group=DGE_Subset$samples$group,
+#              lib.size	= libsizes)
+
+#...Unfortunately, keep.expr() still yields an error.
+
+
+#More failed attempts:
+
+#Filtering out infinities (I don't actually see any such values in lib.size)
+#filterByExpr(y=DGE_Subset,
+#               group=unlist(DGE_Subset$samples$group),
+#               lib.size	= libsizes[!is.infinite(libsizes)])
+
+#Converting from doubles to integers
+#filterByExpr(y=DGE_Subset,
+#            group=unlist(DGE_Subset$samples$group),
+#            as.integer(libsizes))
+
+#Using unlist()?
+#filterByExpr(y=DGE_Subset,
+#               group=unlist(DGE_Subset$samples$group),
+#               lib.size	= unlist(effectiveLibSizes(DGE_Subset)))
+
+
+```
+
+```{r Modeling, include=FALSE, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE}
+#Specify model design
+model_design <- model.matrix(~ DGE_Subset$samples$temp *
+                               DGE_Subset$samples$stage *
+                               DGE_Subset$samples$pheno
+                               )
+
+#Create model object, fit it to DGE_subset, and generate output objects for each of the three variables
+subset_model = voom(DGE_Subset,model_design,plot=FALSE)
+subset_fit = lmFit(subset_model,model_design)
+
+
+# Reusable function to generate a statistics table for a given effect.
+#   coef = the appropriate index for the effect, from colnames(model_design)
+
+getEffects=function(coef){
+  #Compute contrasts for the given coefficient
+  effect = contrasts.fit(subset_fit, coef = coef)
+  
+  #Pull out statistics
+  effect = eBayes(effect)
+  
+  #Sort by p-value
+  effect=topTable(effect, sort.by = "p", n = Inf)
+  
+  return(effect)
+}
+
+#Function to save a table to file
+saveTable=function(table,name){
+  write.table(table, name, row.names = FALSE, quote = FALSE, sep = "\t")
+}
+
+#List of possible coefs
+colnames(model_design)
+str(model_design)
+
+##############################
+#Getting appropriate effects #
+##############################
+
+#Temperature
+# [2] "DGE_Subset$samples$temp25C"   Effect of increasing Temperature
+tempEffect = getEffects(2)
+
+
+#Pupal Stage
+# [3] "DGE_Subset$samples$stagep12" 
+# [4] "DGE_Subset$samples$stagep7"                                                          
+
+p12Effect = getEffects(3)
+p7Effect =  getEffects(4)
+
+#Strain
+# [5] "DGE_Subset$samples$pheno11123"                                                       
+# [6] "DGE_Subset$samples$pheno11150"                                                       
+# [7] "DGE_Subset$samples$pheno11322" 
+
+pheno11123Effect =  getEffects(5)
+pheno11150Effect = getEffects(6)
+pheno11322Effect = getEffects(7)
+
+
+#Uncomment to write effects to file.
+
+write.table(tempEffect,"results/separate/tempEffect.txt") 
+write.table(p12Effect,"results/separate/p12Effect.txt")
+write.table(p7Effect,"results/separate/p7Effect.txt")
+write.table(pheno11123Effect,"results/separate/pheno11123Effect.txt")
+write.table(pheno11150Effect,"results/separate/pheno11150Effect.txt")
+write.table(pheno11322Effect,"results/separate/pheno11322Effect.txt")
+
+```
+
+
+####	Are there differences in gene expression between the experimental conditions (temperature, pupal stage, genotype)? 
+
+```{r Plotting_Functions, include=FALSE, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE}
+#We need to plot variation due to:
+#tempEffect
+#p12Effect
+#p7Effect
+#pheno11123Effect 
+#pheno11150Effect
+#pheno11322Effect
+
+#Function to generate a volcano ggplot, coloring by significance (tested again alpha)
+#You can add layers onto the output, like any ggplot() object. ex:
+#  generateVolcanoPlot(args) + ggtitle("New Title!")
+generateVolcanoPlot = function(effectTable,title,alpha){
+  
+  #Fold in color variables, based on significance
+  coloredTable = effectTable
+  coloredTable$Expression = "Non-Significant Change"
+  coloredTable$Expression[coloredTable$logFC>0 & coloredTable$adj.P.Val<0.05] <- "Upregulated"
+  coloredTable$Expression[coloredTable$logFC<0 & coloredTable$adj.P.Val<0.05] <- "Downregulated"
+  
+  #Return volcano plot.
+  ggplot(data=coloredTable,aes(x=logFC,y=-log(adj.P.Val),color=Expression)) +
+  geom_point() +
+  xlab("log Fold Change") +
+  ylab("Significance (-log(p))") +
+  ggtitle(title) +
+  scale_color_manual(values=c("#D41159", "#111D00", "#1A85FF")) +
+  theme_classic()
+}
+````
+
+The short answer is yes, for all variables. For each of the three sources of variation, I've generated some volcano plots to visualize the distribution of upregulated/downregulated/unaffected gens (see below).
+
+I've also saved lists of specific differentially expressed genes, and the effect on their expression due to:
+
+  + An increase in rearing temperature, from 18 to 25 degrees celsius
+
+  + Each of the four genotypes for which we have data across the pupal stages
+
+  + Each pupal stage
+
+I've included just the top 10 differentially expressed genes in this document. Full lists of DE genes are saved in the base project directory, as DE_Genes_[varying-factor].txt.
+
+**Effect due to Temperature:**
+```{r TemperatureSummary, echo=FALSE, message=FALSE}
+#alpha threshhold to test p-values against
+alpha = 0.05
+
+#Number of genes to print in html report
+n_genes = 5
+
+#Get genes
+DE_genes_temp = tempEffect %>% filter(adj.P.Val < alpha)
+DE_genes_temp = (DE_genes_temp %>% arrange(-abs(logFC)))
+
+print(str_c(nrow(DE_genes_temp)," genes are differentially expressed based on temperature."))
+
+#Print top 5
+print(str_c("Top ",n_genes," DE genes at 25C"))
+top5Temp = select(head(rownames_to_column(DE_genes_temp,"Gene"),n_genes),Gene,logFC,"p (adjusted)"=adj.P.Val,"Average Reads"=AveExpr)
+knitr::kable(top5Temp)
+
+#Volcano plot
+generateVolcanoPlot(tempEffect,"Differential Expression due to increased temperature",alpha)
+```
+
+**Effect due to Pupal Stage:**
+```{r pupalStageSummary, echo=FALSE, message=FALSE}
+#alpha threshhold to test p-values against
+alpha = 0.05
+
+#Number of genes to print in html report
+n_genes = 5
+
+#Getting DE genes for p7
+p7_genes = p7Effect %>% filter(adj.P.Val < alpha)
+p7_genes = (p7_genes %>% arrange(-abs(logFC)))
+
+p7_top5 = select(head(rownames_to_column(p7_genes,"Gene"),n_genes),Gene,logFC,"p (adjusted)"=adj.P.Val,"Average Reads"=AveExpr)
+
+#Getting DE genes for p12
+p12_genes = p12Effect %>% filter(adj.P.Val < alpha)
+p12_genes = (p12_genes %>% arrange(-abs(logFC)))
+
+p12_top5 = select(head(rownames_to_column(p12_genes,"Gene"),n_genes),Gene,logFC,"p (adjusted)"=adj.P.Val,"Average Reads"=AveExpr)
+
+
+#Printing
+print(str_c(nrow(p7_genes)," genes are differentially expressed in p7"))
+print(str_c("Top ",n_genes," DE genes in Pupal Stage 7"))
+knitr::kable(p7_top5)
+
+print(str_c(nrow(p12_genes)," genes are differentially expressed in p12"))
+print(str_c("Top ",n_genes," DE genes in Pupal Stage 12"))
+knitr::kable(p12_top5)
+
+#Volcano plot
+stageEffects = rbind(
+  mutate(p7Effect,stage="Pupal stage P7"),
+  mutate(p12Effect,stage="Pupal stage P12")
+)
+
+generateVolcanoPlot(stageEffects,"Differential Expression due to Pupal Stage",alpha) +
+  facet_wrap(facets="stage",nrow=2) +
+  theme(aspect.ratio = .3)
+
+```
+
+**Effect due to Genotype:**
+```{r GhenotypeSummary, echo=FALSE, message=FALSE}
+#alpha threshhold to test p-values against
+alpha = 0.05
+
+#Number of genes to print in html report
+n_genes = 5
+
+#Getting DE genes for genes_11123
+genes_11123 = pheno11123Effect %>% filter(adj.P.Val < alpha)
+genes_11123 = (genes_11123 %>% arrange(-abs(logFC)))
+
+top5_11123 = select(head(rownames_to_column(genes_11123,"Gene"),n_genes),Gene,logFC,"p (adjusted)"=adj.P.Val,"Average Reads"=AveExpr)
+
+#Getting DE genes for genes_11150
+genes_11150 = pheno11150Effect %>% filter(adj.P.Val < alpha)
+genes_11150 = (genes_11150 %>% arrange(-abs(logFC)))
+
+top5_11150 = select(head(rownames_to_column(genes_11150,"Gene"),n_genes),Gene,logFC,"p (adjusted)"=adj.P.Val,"Average Reads"=AveExpr)
+
+#Getting DE genes for genes_11322
+genes_11322 = pheno11322Effect %>% filter(adj.P.Val < alpha)
+genes_11322 = (genes_11322 %>% arrange(-abs(logFC)))
+
+top5_11322 = select(head(rownames_to_column(genes_11322,"Gene"),n_genes),Gene,logFC,"p (adjusted)"=adj.P.Val,"Average Reads"=AveExpr)
+
+#Printing top 5 tables
+print(str_c(nrow(genes_11123)," genes are differentially expressed in 11123"))
+print(str_c("Top ",n_genes," DE genes for strain 11123"))
+knitr::kable(top5_11123)
+
+print(str_c(nrow(genes_11150)," genes are differentially expressed in 11150"))
+print(str_c("Top ",n_genes," DE genes for strain 11150"))
+knitr::kable(top5_11150)
+
+print(str_c(nrow(genes_11322)," genes are differentially expressed in 11322"))
+print(str_c("Top ",n_genes," DE genes for strain 11322"))
+knitr::kable(top5_11322)
+
+#Volcano plot
+phenotypeEffects = rbind(
+  mutate(pheno11123Effect,Phenotype="DSPR Strain 11123"),
+  mutate(pheno11150Effect,Phenotype="DSPR Strain 11150"),
+  mutate(pheno11322Effect,Phenotype="DSPR Strain 11322")
+)
+
+generateVolcanoPlot(phenotypeEffects,"Differential Expression due to Phenotype",alpha) +
+  facet_wrap(facets="Phenotype",nrow=3) +
+  theme(aspect.ratio = .3)
+```
+
+```{r SavingDETables,echo=FALSE, message=FALSE,warning=FALSE}
+#Uncomment to save list of DE genes to file
+# saveTable(arrange(DE_genes_temp,logFC),"DE_Genes_temp.txt")
+# 
+# saveTable(arrange(p7_genes,logFC),"DE_Genes_p7.txt")
+# saveTable(arrange(p12_genes,logFC),"DE_Genes_p12.txt")
+# 
+# saveTable(arrange(genes_11123,logFC),"DE_Genes_11123.txt")
+# saveTable(arrange(genes_11150,logFC),"DE_Genes_11150.txt")
+# saveTable(arrange(genes_11322,logFC),"DE_Genes_11322.txt")
+
+```
+
+
+#### How many reads per sample are there on average?
+
+```{r AveragingExpression, include=FALSE, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE}
+
+#Average expression can be pulled from any of the output tables.
+AvgExprByGene = (tempEffect %>% arrange(-AveExpr) %>% select(AveExpr))
+
+#Save to file.
+write.table(AvgExprByGene,"AverageExpressionTable.txt")
+
+```
+
+```{r grand_mean, echo=FALSE}
+print(str_c("Mean expression, across all genes: ",round(mean(AvgExprByGene$AveExpr),2)))
+```
+
+**Top 5 expressed genes:**
+```{r top5, echo=FALSE}
+top5 = head(rownames_to_column(AvgExprByGene,"Gene"),5)
+colnames(top5) = c("Gene","Average Reads")
+knitr::kable(top5)
+```
+
+**Bottom 5 expressed genes:**
+```{r bottom5, echo=FALSE}
+bottom5 = head(rownames_to_column(AvgExprByGene,"Gene"),5)
+colnames(bottom5) = c("Gene","Average Reads")
+knitr::kable(bottom5)
+```
+
+```{r read_distr, echo=FALSE,warning=FALSE}
+avg_plot = ggplot(data = data.frame(AvgExprByGene),aes(x=AveExpr)) +
+  geom_density() + 
+  ggtitle("Distribution of read average, across all differentially expressed genes") +
+  xlab("Read Count") +
+  ylab("Density") +
+  theme_bw()
+
+avg_plot
+
+```
+
+
+For the full list of gene expression averages, see AverageExpressionTable.txt.
+
+---
+
+### 2.
+#### 	How should the sequencing data be handled? There are technical replicates. Should they be combined into one long file, or should each technical replicate be analyzed separately and then combined?
+
+To assess this, I essentially recapitulated the analysis above, but using results files pooled by lane. I decided against including volcano plots for the pooled data (There is code to generate and print them in the source .rmd; I've just commented it out.)
+
+```{r Building_Pooled_SampleList, include=FALSE, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE}
+path_to_pooled_featureCounts = "results/pooled/gene-expression"
+
+# Get a list of paths from  the gene expression results directory
+pooled_fc_paths = tibble(list.files(path=path_to_pooled_featureCounts,full.names=TRUE))
+colnames(pooled_fc_paths) = c("path")
+
+# Pulling out only the trimmed output files
+pooled_fc_paths = filter(pooled_fc_paths,str_detect(path,"featureCounts.txt.trim"))
+
+# Convert from data_frame to a list
+pooled_fc_list = pooled_fc_paths$path
+
+#Building a sample reference table.
+# This code uses substring matching to pull variables out of the filepath.
+# This means it will break on files with different naming conventions.
+pooled_SampleTable = tibble(pooled_fc_list) %>%
+  mutate(path=pooled_fc_list) %>%
+  mutate(temp=str_extract(path,"(?<=_)[:digit:]+C(?=_)")) %>%
+  mutate(pupal_stage=str_extract(path,"p[:digit:]+(?=_)")) %>%
+  mutate(DSPR_phenotype=str_extract(path,"(?<=_)[:digit:]+(?=_)")) %>%
+  mutate(ID=str_extract(path,"(?<=gene-expression/)(.)+(?=.hisat2.featureCounts)")) %>%
+  mutate(bio_replicate=str_extract(path,"(?<=_)R[:digit:]+(?=_)")) %>%
+  select(ID,temp,pupal_stage,DSPR_phenotype,bio_replicate,path)
+
+# Summary table of pupal stage replication by sample.
+pooled_SampleTable %>% group_by(temp,bio_replicate,DSPR_phenotype) %>% summarise(pupal_replicates=n())
+
+
+# If you filter out the samples with < 3 pupal replicates,that leaves four phenotypes we can analyze.
+# These 4 genotypes were measured across the pupal stages, at both temperatures, across the 3 replicates.
+#     (2 temps * 3 bio replicates = 6 samples)
+phenos_to_study_pooled = pooled_SampleTable %>% 
+  group_by(temp,bio_replicate,DSPR_phenotype) %>%
+  summarise(pupal_replicates=n()) %>%
+  filter(pupal_replicates==3) %>%
+  group_by(DSPR_phenotype) %>%
+  summarise(total_samples=n())
+
+
+# Filter out the phenotypes without stage replication
+pooled_SampleSubset = pooled_SampleTable %>%
+  filter(DSPR_phenotype %in% phenos_to_study_pooled$DSPR_phenotype)
+
+# Verifying the above step
+pooled_SampleSubset %>% distinct(DSPR_phenotype) #11051 11123 11150 11322
+```
+
+```{r Constructing_Pooled_DGE, include=FALSE, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE}
+#Load the subset of fully replicated samples from file
+pooled_DGE_Subset=readDGE((pooled_SampleSubset$path), columns = c(1,3))
+
+# Sanity Check
+#   24 samples/stage x 3 stages = 72 files/phenotype
+#   Across 4 phenotypes, that should add up to 288 files
+dim(pooled_DGE_Subset) #      17610   72
+pooled_SampleSubset %>% distinct(ID) #72  (Each file has a unique "ID")
+
+# Adding name columns
+colnames(pooled_DGE_Subset) = pooled_SampleSubset$ID
+colnames(pooled_DGE_Subset)
+
+# Populate DGE_subset$Samples with data for each variable
+pooled_DGE_Subset$Samples$temp = pooled_SampleSubset$temp #Temperature
+pooled_DGE_Subset$Samples$stage = pooled_SampleSubset$pupal_stage #Pupal Stage
+pooled_DGE_Subset$Samples$pheno = pooled_SampleSubset$DSPR_phenotype #Phenotype
+
+# Look at all those data
+pooled_DGE_Subset$Samples
+
+# Building groups object
+#   Group is the combination of temp/pheno/stage for a given sample
+#   2 temp * 4 phenotypes * 3 pupal stages = 24 levels
+pooled_groups = interaction(pooled_SampleSubset$temp,pooled_SampleSubset$DSPR_phenotype,pooled_SampleSubset$pupal_stage) #48 levels
+levels(pooled_groups) #n=24
+
+# Adding groups to DGE object
+pooled_DGE_Subset$Samples$group = pooled_groups
+
+# Finally, normalize the counts relative to their lengths with calcNormFactors
+# This actually runs without removing any lanes.
+# Which is good, because that would be a non-trivial task, for the pooled files
+pooled_DGE_Subset = calcNormFactors(pooled_DGE_Subset)
+
+```
+
+```{r Pooled_Modeling, include=FALSE, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE}
+#Normalize the counts data
+
+# https://www.rdocumentation.org/packages/edgeR/versions/3.14.0/topics/actors
+pooled_normal_factors = calcNormFactors(pooled_DGE_Subset,method="RLE")
+
+#Specify model design
+pooled_model_design <- model.matrix(~ pooled_DGE_Subset$Samples$temp *
+                               pooled_DGE_Subset$Samples$stage *
+                               pooled_DGE_Subset$Samples$pheno
+                               )
+
+
+
+#Create model object, fit it to DGE_subset, and generate output objects for each of the three variables
+
+pooled_subset_model = voom(pooled_DGE_Subset,pooled_model_design,plot=FALSE)
+pooled_subset_fit = lmFit(pooled_subset_model,pooled_model_design)
+
+
+#Function to generate a statistics table for a given effect.
+#coef = the appropriate index for the effect, from colnames(model_design)
+
+getEffects=function(coef){
+  #Compute contrasts for the given coefficient
+  effect = contrasts.fit(pooled_subset_fit, coef = coef)
+  
+
+  #Pull out statistics
+  effect = eBayes(effect)
+  
+  #Sort by p-value
+  effect=topTable(effect, sort.by = "p", n = Inf)
+  
+  return(effect)
+}
+
+#Function to save a table to file
+saveTable=function(table,name){
+  write.table(table, name, row.names = FALSE, quote = FALSE, sep = "\t")
+}
+
+#List of possible coefs
+colnames(pooled_model_design)
+str(pooled_model_design)
+
+##############################
+#Getting appropriate effects #
+##############################
+
+#Temperature
+# [2] "DGE_Subset$Samples$temp25C"   Effect of increasing Temperature
+pooled_tempEffect = getEffects(2)
+
+
+#Pupal Stage
+# [3] "DGE_Subset$Samples$stagep12" 
+# [4] "DGE_Subset$Samples$stagep7"                                                          
+
+pooled_p12Effect = getEffects(3)
+pooled_p7Effect =  getEffects(4)
+
+#Strain
+# [5] "DGE_Subset$Samples$pheno11123"                                                       
+# [6] "DGE_Subset$Samples$pheno11150"                                                       
+# [7] "DGE_Subset$Samples$pheno11322" 
+
+pooled_pheno11123Effect =  getEffects(5)
+pooled_pheno11150Effect = getEffects(6)
+pooled_pheno11322Effect = getEffects(7)
+
+
+#Uncomment to write effects to file.
+
+#write.table(tempEffect,"results/pooled/pooled_tempEffect.txt") 
+#write.table(p12Effect,"results/pooled/pooled_p12Effect.txt")
+#write.table(p7Effect,"results/pooled/pooled_p7Effect.txt")
+#write.table(pheno11123Effect,"results/pooled/pooled_pheno11123Effect.txt")
+#write.table(pheno11150Effect,"results/pooled/pooled_pheno11150Effect.txt")
+#write.table(pheno11322Effect,"results/pooled/pooled_pheno11322Effect.txt")
+
+```
+
+```{r Pooled_TemperatureEffect, echo=FALSE, message=FALSE}
+#alpha threshhold to test p-values against
+alpha = 0.05
+
+#Number of genes to print in html report
+n_genes = 5
+
+#Get genes
+pooled_DE_genes_temp = pooled_tempEffect %>% filter(adj.P.Val < alpha)
+pooled_DE_genes_temp = (pooled_DE_genes_temp %>% arrange(-abs(logFC)))
+
+#print(str_c(nrow(pooled_DE_genes_temp)," genes are differentially expressed based on temperature."))
+
+# #Print top 5
+# print(str_c("Top ",n_genes," DE genes at 25C"))
+# pooled_top5Temp = select(head(rownames_to_column(pooled_DE_genes_temp,"Gene"),n_genes),Gene,logFC,"p (adjusted)"=adj.P.Val,"Average Reads"=AveExpr)
+# knitr::kable(pooled_top5Temp)
+
+#Volcano plot
+#generateVolcanoPlot(pooled_tempEffect,"Differential Expression due to increased temperature",alpha)
+```
+
+```{r Pooled_pupalStageEffect, echo=FALSE, message=FALSE}
+#alpha threshhold to test p-values against
+alpha = 0.05
+
+#Number of genes to print in html report
+n_genes = 5
+
+#Getting DE genes for p7
+pooled_p7_genes = pooled_p7Effect %>% filter(adj.P.Val < alpha)
+pooled_p7_genes = (pooled_p7_genes %>% arrange(-abs(logFC)))
+
+#pooled_p7_top5 = select(head(rownames_to_column(pooled_p7_genes,"Gene"),n_genes),Gene,logFC,"p (adjusted)"=adj.P.Val,"Average Reads"=AveExpr)
+
+#Getting DE genes for p12
+pooled_p12_genes = pooled_p12Effect %>% filter(adj.P.Val < alpha)
+pooled_p12_genes = (pooled_p12_genes %>% arrange(-abs(logFC)))
+
+#pooled_p12_top5 = select(head(rownames_to_column(pooled_p12_genes,"Gene"),n_genes),Gene,logFC,"p (adjusted)"=adj.P.Val,"Average Reads"=AveExpr)
+
+
+# #Printing
+# print(str_c(nrow(pooled_p7_genes)," genes are differentially expressed in p7"))
+# print(str_c("Top ",n_genes," DE genes in Pupal Stage 7"))
+# knitr::kable(pooled_p7_top5)
+# 
+# print(str_c(nrow(pooled_p12_genes)," genes are differentially expressed in p12"))
+# print(str_c("Top ",n_genes," DE genes in Pupal Stage 12"))
+# knitr::kable(pooled_p12_top5)
+# 
+# #Volcano plot
+# pooled_stageEffects = rbind(
+#   mutate(pooled_p7Effect,stage="Pupal stage P7"),
+#   mutate(pooled_p12Effect,stage="Pupal stage P12")
+# )
+# 
+# generateVolcanoPlot(pooled_stageEffects,"Differential Expression due to Pupal Stage",alpha) +
+#   facet_wrap(facets="stage",nrow=2) +
+#   theme(aspect.ratio = .3)
+# 
+# 
+```
+
+```{r Pooled_GhenotypeEffect, echo=FALSE, message=FALSE}
+#alpha threshhold to test p-values against
+alpha = 0.05
+
+#Number of genes to print in html report
+n_genes = 5
+
+#Getting DE genes for pooled_genes_11123
+pooled_genes_11123 = pooled_pheno11123Effect %>% filter(adj.P.Val < alpha)
+pooled_genes_11123 = (pooled_genes_11123 %>% arrange(-abs(logFC)))
+
+#pooled_top5_11123 = select(head(rownames_to_column(pooled_genes_11123,"Gene"),n_genes),Gene,logFC,"p (adjusted)"=adj.P.Val,"Average Reads"=AveExpr)
+
+#Getting DE genes for pooled_genes_11150
+pooled_genes_11150 = pooled_pheno11150Effect %>% filter(adj.P.Val < alpha)
+pooled_genes_11150 = (pooled_genes_11150 %>% arrange(-abs(logFC)))
+
+#pooled_top5_11150 = select(head(rownames_to_column(pooled_genes_11150,"Gene"),n_genes),Gene,logFC,"p (adjusted)"=adj.P.Val,"Average Reads"=AveExpr)
+
+#Getting DE genes for pooled_genes_11322
+pooled_genes_11322 = pooled_pheno11322Effect %>% filter(adj.P.Val < alpha)
+pooled_genes_11322 = (pooled_genes_11322 %>% arrange(-abs(logFC)))
+
+#pooled_top5_11322 = select(head(rownames_to_column(pooled_genes_11322,"Gene"),n_genes),Gene,logFC,"p (adjusted)"=adj.P.Val,"Average Reads"=AveExpr)
+
+#Printing top 5 tables
+# print(str_c(nrow(pooled_genes_11123)," genes are differentially expressed in 11123"))
+# print(str_c("Top ",n_genes," DE genes for strain 11123"))
+# knitr::kable(pooled_top5_11123)
+# 
+# print(str_c(nrow(pooled_genes_11150)," genes are differentially expressed in 11150"))
+# print(str_c("Top ",n_genes," DE genes for strain 11150"))
+# knitr::kable(pooled_top5_11150)
+# 
+# print(str_c(nrow(pooled_genes_11322)," genes are differentially expressed in 11322"))
+# print(str_c("Top ",n_genes," DE genes for strain 11322"))
+# knitr::kable(pooled_top5_11322)
+# 
+# #Volcano plot
+# pooled_phenotypeEffects = rbind(
+#   mutate(pooled_pheno11123Effect,Phenotype="DSPR Strain 11123"),
+#   mutate(pooled_pheno11150Effect,Phenotype="DSPR Strain 11150"),
+#   mutate(pooled_pheno11322Effect,Phenotype="DSPR Strain 11322")
+# )
+# 
+# generateVolcanoPlot(pooled_phenotypeEffects,"Differential Expression due to Phenotype",alpha) +
+#   facet_wrap(facets="Phenotype",nrow=3) +
+#   theme(aspect.ratio = .3)
+```
+
+I was able to identify significantly fewer DE genes when pooling the technical replicates, regardless of the source of variation. Interestingly, the pupal stages seemed less affected by pooling than the temperature or strain effect, at least in terms of gene count.
+
+```{r GeneCountComparisonTable, echo=FALSE, message=FALSE}
+DE_counts_summary = rbind(
+  c("Rearing at 25C",
+    nrow(DE_genes_temp),         # 4142
+    nrow(pooled_DE_genes_temp)), # 240
+  c("Pupal Stage 7",
+    nrow(p7_genes),              #8548
+    nrow(pooled_p7_genes)),      #5649
+  c("Pupal Stage 12",
+    nrow(p12_genes),             #8887
+    nrow(pooled_p12_genes)),     #6589
+  c("Strain 11123",
+    nrow(genes_11123),           #422
+    nrow(pooled_genes_11123)),   #242
+  c("Strain 11150",
+    nrow(genes_11150),           #591
+    nrow(pooled_genes_11150)),   #301
+  c("Strain 11322",
+    nrow(genes_11322),           #2957
+    nrow(pooled_genes_11322)))   #369
+
+#Add in difference column
+DE_counts_summary = data.frame(DE_counts_summary) %>% mutate( round( (as.integer(X3)-as.integer(X2))*100/(as.integer(X2)), 2))
+
+#Rename
+colnames(DE_counts_summary) = c("Varying factor","DE Genes (separate)","DE Genes (pooled)","% change")
+
+#Print as kable
+knitr::kable(DE_counts_summary)
+```
+
+The vast majority of the time, if just one of the methods fails to identify a DE expressed gene which the other catches, it's using the pooled replicates model. In other words, DE genes are "lost" almost exclusively when pooling replicates, and not the other way around.
+
+```{r OneWaySetDiffs, echo=FALSE, message=FALSE}
+#setdiff(): gets genes which are only expressed in a, but not b
+# Here, I'm doing this both ways, for each pair of separate/pooled results
+# uniquely_DE is a table of counts for each of these sets
+
+uniquely_DE= rbind(
+c("Rearing at 25C",
+length(setdiff(rownames(DE_genes_temp),rownames(pooled_DE_genes_temp))),
+length(setdiff(rownames(pooled_DE_genes_temp),rownames(DE_genes_temp)))), # 0
+c("Pupal Stage 7",
+length(setdiff(rownames(p7_genes),rownames(pooled_p7_genes))),
+length(setdiff(rownames(pooled_p7_genes),rownames(p7_genes)))), # 9
+c("Pupal Stage 12",
+length(setdiff(rownames(p12_genes),rownames(pooled_p7_genes))),
+length(setdiff(rownames(pooled_p12_genes),rownames(p12_genes)))), # 11
+c("Strain 11123",
+length(setdiff(rownames(genes_11123),rownames(pooled_genes_11123))),
+length(setdiff(rownames(pooled_genes_11123),rownames(genes_11123)))), #0!
+c("Strain 11150",
+length(setdiff(rownames(genes_11150),rownames(pooled_genes_11150))),
+length(setdiff(rownames(pooled_genes_11150),rownames(genes_11150)))), #0!
+c("Strain 11322",
+length(setdiff(rownames(genes_11322),rownames(pooled_genes_11322))),
+length(setdiff(rownames(pooled_genes_11322),rownames(genes_11322)))) #0!
+)
+
+uniquely_DE = data.frame(uniquely_DE)
+colnames(uniquely_DE) = c("Varying factor","Separate Only","Pooled Only")
+```
+
+It's interesting that the small number of exceptions--that is, genes differentially expressed only after pooling--happened only in pupal stage models. That said, none of them are shared between p7/p12.
+
+*Genes which 'appeared' as DE only when pooling:*
+
+::: columns
+
+:::: column
+
+```{r exceptionsP7, echo=FALSE, message=FALSE}
+knitr::kable(sort(setdiff(rownames(pooled_p7_genes),rownames(p7_genes))),col.names=c("Pupal Stage 7"))
+```
+
+::::
+
+:::: column
+
+```{r exceptionsP12, echo=FALSE, message=FALSE}
+knitr::kable(sort(setdiff(rownames(pooled_p12_genes),rownames(p12_genes))),col.names=c("Pupal Stage 12"))
+```
+
+::::
+
+::: 
+
+The fact that these genes, in particular, are only significant when pooling lanes is probably due to chance. At the very least, my analysis didn't offer any clear explanation.
+
+```{r changeSeparateToPooled, include=FALSE, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE}
+
+# Lastly, I want to evaluate the change in expression between the two methods, on a per gene basis.
+
+#For each source of variation, get the set of genes differentially expressed according to both models, and logFC
+#   The long format will be useful for plotting
+
+temp_changes = (inner_join(rownames_to_column(DE_genes_temp,"gene"),
+                           rownames_to_column(pooled_DE_genes_temp,"gene"),by="gene") %>%
+                  select(gene,separate=logFC.x,pooled=logFC.y) %>%
+                  pivot_longer(cols=c(separate,pooled),names_to="Method")  %>%
+                  mutate(Variation="temp"))
+
+p7_changes = (inner_join(rownames_to_column(p7_genes,"gene"),
+                         rownames_to_column(pooled_p7_genes,"gene"),by="gene") %>%
+                select(gene,separate=logFC.x,pooled=logFC.y) %>%
+                pivot_longer(cols=c(separate,pooled),names_to="Method")  %>%
+                mutate(Variation="Pupal Stage 7"))
+
+p12_changes = (inner_join(rownames_to_column(p12_genes,"gene"),
+                          rownames_to_column(pooled_p12_genes,"gene"),by="gene") %>%
+                 select(gene,separate=logFC.x,pooled=logFC.y) %>%
+                 pivot_longer(cols=c(separate,pooled),names_to="Method")  %>%
+                 mutate(Variation="Pupal Stage 12"))
+
+s11123_changes = (inner_join(rownames_to_column(genes_11123,"gene"),
+                             rownames_to_column(pooled_genes_11123,"gene"),by="gene") %>%
+                    select(gene,separate=logFC.x,pooled=logFC.y) %>%
+                    pivot_longer(cols=c(separate,pooled),names_to="Method") %>%
+                    mutate(Variation="DSPR Strain 11123"))
+
+s11150_changes = (inner_join(rownames_to_column(genes_11150,"gene"),
+                            rownames_to_column(pooled_genes_11150,"gene"),by="gene") %>%
+                    select(gene,separate=logFC.x,pooled=logFC.y) %>%
+                    pivot_longer(cols=c(separate,pooled),names_to="Method")  %>%
+                    mutate(Variation="DSPR Strain 11150"))
+
+s11322_changes = (inner_join(rownames_to_column(genes_11322,"gene"),
+                             rownames_to_column(pooled_genes_11322,"gene"),by="gene") %>%
+                    select(gene,separate=logFC.x,pooled=logFC.y) %>% pivot_longer(cols=c(separate,pooled),names_to="Method") %>%
+                    mutate(Variation="DSPR Strain 11322"))
+
+
+#Combine the table, so they can be plotted as facets
+changes_table = rbind(temp_changes,
+                      p7_changes,
+                      p12_changes,
+                      s11123_changes,
+                      s11150_changes,
+                      s11322_changes)
+
+#Add x_pos variable for plotting
+changes_table = (changes_table %>% mutate(x_pos = case_when(
+  Method=="separate" ~ 0,
+  Method=="pooled" ~ 1
+)))
+
+#Add in differences in log(FC) between combined and pooled
+logFC_diff=(changes_table %>%
+  pivot_wider(names_from=c("Method","x_pos"),values_from=c(value)) %>%
+  mutate(difference=pooled_1 - separate_0))
+            
+```
+
+I also wanted to assess the difference in differential expression, within each category of variation, between the separate and pooled methods. The next plot maps these distributions. (Negative values of x correspond to a negative shift in the pooled model, and vice versa)
+
+```{r, changes_plot, echo=FALSE,message=FALSE}
+ggplot(data=logFC_diff,aes(x=difference)) +
+  geom_density() +
+  geom_vline(xintercept=0,color="blue",linetype=3) +
+  ggtitle("Difference in differential expression, pooled vs separate") +
+  facet_wrap(facets="Variation") +
+  theme_bw()
+```
+
+While the distributions all generally cluster around 0, "zooming in" shows that the distributions are actually skewed The pooled method is apparently somewhat biased towards increased expression counts, compared to the separate method, when modeling variation due to strain or pupal stage. In the case of temperature, it tends to increase adjusted expression values relative to the separate method.
+
+```{r, changes_plot_zoom, echo=FALSE,message=FALSE}
+ggplot(data=logFC_diff,aes(x=difference)) +
+  geom_vline(xintercept=0,color="blue") +
+  geom_density() +
+  ggtitle("Difference in differential expression, pooled vs separate ('zoomed in')") +
+  xlim(-.1,.1) +
+  facet_wrap(facets="Variation") +
+  theme_bw()
+
+```
+
+
+*In summary:* There are definitely noticeable differences when choosing to pool the technical replicates vs analyzing them as separate files. The pooled method recognizes genes as being differentially expressed far less frequently than the separate file method. It also tends to shift logFC in one direction or the other, on a per-variable basis.
+
+The lane replicates should be processed separately and combined, to minimize the loss of legitimate differentially expressed genes in the final results.

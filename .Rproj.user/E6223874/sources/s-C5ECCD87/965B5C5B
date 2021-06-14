@@ -1,0 +1,33 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1621891971513.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "965B5C5B",
+    "lastKnownWriteTime" : 0,
+    "last_content_update" : 1621891971513,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "2454213B",
+        "caption" : "long_counts",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=long_counts&cache_key=2454213B",
+        "displayedObservations" : 3840,
+        "environment" : "",
+        "expression" : "long_counts",
+        "object" : "long_counts",
+        "preview" : 0,
+        "totalObservations" : 3840,
+        "variables" : 11
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

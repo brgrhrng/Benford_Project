@@ -1,0 +1,33 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1621566973273.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "527B304A",
+    "lastKnownWriteTime" : 2167179210688,
+    "last_content_update" : 1621566973273,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "9A0E279E",
+        "caption" : "chisq_totals",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=chisq_totals&cache_key=9A0E279E",
+        "displayedObservations" : "384",
+        "environment" : "",
+        "expression" : "chisq_totals",
+        "object" : "chisq_totals",
+        "preview" : "0",
+        "totalObservations" : "384",
+        "variables" : "6"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}
