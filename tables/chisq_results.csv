@@ -1,449 +1,449 @@
-"","year","state","party","follows_benford","counties","facet_label"
-"1",1996,"AL","democrat",FALSE,67,"AL (n=67)"
-"2",1996,"AL","republican",TRUE,67,"AL (n=67)"
-"3",1996,"AR","democrat",FALSE,75,"AR (n=75)"
-"4",1996,"AR","republican",FALSE,75,"AR (n=75)"
-"5",1996,"CA","democrat",TRUE,58,"CA (n=58)"
-"6",1996,"CA","republican",TRUE,58,"CA (n=58)"
-"7",1996,"CO","democrat",TRUE,63,"CO (n=63)"
-"8",1996,"CO","republican",TRUE,63,"CO (n=63)"
-"9",1996,"FL","democrat",TRUE,67,"FL (n=67)"
-"10",1996,"FL","republican",TRUE,67,"FL (n=67)"
-"11",1996,"GA","democrat",TRUE,159,"GA (n=159)"
-"12",1996,"GA","republican",TRUE,159,"GA (n=159)"
-"13",1996,"IA","democrat",FALSE,99,"IA (n=99)"
-"14",1996,"IA","republican",FALSE,99,"IA (n=99)"
-"15",1996,"ID","democrat",FALSE,44,"ID (n=44)"
-"16",1996,"ID","republican",TRUE,44,"ID (n=44)"
-"17",1996,"IL","democrat",TRUE,102,"IL (n=102)"
-"18",1996,"IL","republican",FALSE,102,"IL (n=102)"
-"19",1996,"IN","democrat",FALSE,92,"IN (n=92)"
-"20",1996,"IN","republican",TRUE,92,"IN (n=92)"
-"21",1996,"KS","democrat",TRUE,105,"KS (n=105)"
-"22",1996,"KS","republican",TRUE,105,"KS (n=105)"
-"23",1996,"KY","democrat",TRUE,120,"KY (n=120)"
-"24",1996,"KY","republican",TRUE,120,"KY (n=120)"
-"25",1996,"LA","democrat",TRUE,64,"LA (n=64)"
-"26",1996,"LA","republican",TRUE,64,"LA (n=64)"
-"27",1996,"MI","democrat",TRUE,83,"MI (n=83)"
-"28",1996,"MI","republican",TRUE,83,"MI (n=83)"
-"29",1996,"MN","democrat",TRUE,87,"MN (n=87)"
-"30",1996,"MN","republican",TRUE,87,"MN (n=87)"
-"31",1996,"MO","democrat",TRUE,114,"MO (n=114)"
-"32",1996,"MO","republican",TRUE,114,"MO (n=114)"
-"33",1996,"MS","democrat",FALSE,82,"MS (n=82)"
-"34",1996,"MS","republican",FALSE,82,"MS (n=82)"
-"35",1996,"MT","democrat",TRUE,56,"MT (n=56)"
-"36",1996,"MT","republican",TRUE,56,"MT (n=56)"
-"37",1996,"NC","democrat",TRUE,100,"NC (n=100)"
-"38",1996,"NC","republican",TRUE,100,"NC (n=100)"
-"39",1996,"ND","democrat",TRUE,53,"ND (n=53)"
-"40",1996,"ND","republican",TRUE,53,"ND (n=53)"
-"41",1996,"NE","democrat",TRUE,93,"NE (n=93)"
-"42",1996,"NE","republican",TRUE,93,"NE (n=93)"
-"43",1996,"NY","democrat",TRUE,59,"NY (n=59)"
-"44",1996,"NY","republican",TRUE,59,"NY (n=59)"
-"45",1996,"OH","democrat",TRUE,88,"OH (n=88)"
-"46",1996,"OH","republican",TRUE,88,"OH (n=88)"
-"47",1996,"OK","democrat",TRUE,77,"OK (n=77)"
-"48",1996,"OK","republican",TRUE,77,"OK (n=77)"
-"49",1996,"PA","democrat",FALSE,67,"PA (n=67)"
-"50",1996,"PA","republican",TRUE,67,"PA (n=67)"
-"51",1996,"SC","democrat",TRUE,46,"SC (n=46)"
-"52",1996,"SC","republican",TRUE,46,"SC (n=46)"
-"53",1996,"SD","democrat",TRUE,66,"SD (n=66)"
-"54",1996,"SD","republican",TRUE,66,"SD (n=66)"
-"55",1996,"TN","democrat",TRUE,95,"TN (n=95)"
-"56",1996,"TN","republican",TRUE,95,"TN (n=95)"
-"57",1996,"TX","democrat",TRUE,254,"TX (n=254)"
-"58",1996,"TX","republican",TRUE,254,"TX (n=254)"
-"59",1996,"VA","democrat",TRUE,95,"VA (n=95)"
-"60",1996,"VA","republican",TRUE,95,"VA (n=95)"
-"61",1996,"WI","democrat",TRUE,72,"WI (n=72)"
-"62",1996,"WI","republican",TRUE,72,"WI (n=72)"
-"63",1996,"WV","democrat",TRUE,55,"WV (n=55)"
-"64",1996,"WV","republican",TRUE,55,"WV (n=55)"
-"65",2000,"AL","democrat",FALSE,67,"AL (n=67)"
-"66",2000,"AL","republican",TRUE,67,"AL (n=67)"
-"67",2000,"AR","democrat",TRUE,75,"AR (n=75)"
-"68",2000,"AR","republican",FALSE,75,"AR (n=75)"
-"69",2000,"CA","democrat",TRUE,58,"CA (n=58)"
-"70",2000,"CA","republican",TRUE,58,"CA (n=58)"
-"71",2000,"CO","democrat",TRUE,63,"CO (n=63)"
-"72",2000,"CO","republican",TRUE,63,"CO (n=63)"
-"73",2000,"FL","democrat",TRUE,67,"FL (n=67)"
-"74",2000,"FL","republican",TRUE,67,"FL (n=67)"
-"75",2000,"GA","democrat",FALSE,159,"GA (n=159)"
-"76",2000,"GA","republican",TRUE,159,"GA (n=159)"
-"77",2000,"IA","democrat",FALSE,99,"IA (n=99)"
-"78",2000,"IA","republican",FALSE,99,"IA (n=99)"
-"79",2000,"ID","democrat",TRUE,44,"ID (n=44)"
-"80",2000,"ID","republican",TRUE,44,"ID (n=44)"
-"81",2000,"IL","democrat",TRUE,102,"IL (n=102)"
-"82",2000,"IL","republican",FALSE,102,"IL (n=102)"
-"83",2000,"IN","democrat",FALSE,92,"IN (n=92)"
-"84",2000,"IN","republican",TRUE,92,"IN (n=92)"
-"85",2000,"KS","democrat",TRUE,105,"KS (n=105)"
-"86",2000,"KS","republican",TRUE,105,"KS (n=105)"
-"87",2000,"KY","democrat",TRUE,120,"KY (n=120)"
-"88",2000,"KY","republican",FALSE,120,"KY (n=120)"
-"89",2000,"LA","democrat",TRUE,64,"LA (n=64)"
-"90",2000,"LA","republican",TRUE,64,"LA (n=64)"
-"91",2000,"MI","democrat",TRUE,83,"MI (n=83)"
-"92",2000,"MI","republican",TRUE,83,"MI (n=83)"
-"93",2000,"MN","democrat",TRUE,87,"MN (n=87)"
-"94",2000,"MN","republican",TRUE,87,"MN (n=87)"
-"95",2000,"MO","democrat",TRUE,116,"MO (n=116)"
-"96",2000,"MO","republican",TRUE,116,"MO (n=116)"
-"97",2000,"MS","democrat",TRUE,82,"MS (n=82)"
-"98",2000,"MS","republican",FALSE,82,"MS (n=82)"
-"99",2000,"MT","democrat",TRUE,56,"MT (n=56)"
-"100",2000,"MT","republican",TRUE,56,"MT (n=56)"
-"101",2000,"NC","democrat",TRUE,100,"NC (n=100)"
-"102",2000,"NC","republican",TRUE,100,"NC (n=100)"
-"103",2000,"ND","democrat",TRUE,53,"ND (n=53)"
-"104",2000,"ND","republican",TRUE,53,"ND (n=53)"
-"105",2000,"NE","democrat",FALSE,93,"NE (n=93)"
-"106",2000,"NE","republican",TRUE,93,"NE (n=93)"
-"107",2000,"NY","democrat",TRUE,62,"NY (n=62)"
-"108",2000,"NY","republican",TRUE,62,"NY (n=62)"
-"109",2000,"OH","democrat",TRUE,88,"OH (n=88)"
-"110",2000,"OH","republican",TRUE,88,"OH (n=88)"
-"111",2000,"OK","democrat",TRUE,77,"OK (n=77)"
-"112",2000,"OK","republican",TRUE,77,"OK (n=77)"
-"113",2000,"PA","democrat",FALSE,67,"PA (n=67)"
-"114",2000,"PA","republican",TRUE,67,"PA (n=67)"
-"115",2000,"SC","democrat",TRUE,46,"SC (n=46)"
-"116",2000,"SC","republican",TRUE,46,"SC (n=46)"
-"117",2000,"SD","democrat",TRUE,66,"SD (n=66)"
-"118",2000,"SD","republican",TRUE,66,"SD (n=66)"
-"119",2000,"TN","democrat",TRUE,95,"TN (n=95)"
-"120",2000,"TN","republican",TRUE,95,"TN (n=95)"
-"121",2000,"TX","democrat",TRUE,254,"TX (n=254)"
-"122",2000,"TX","republican",TRUE,254,"TX (n=254)"
-"123",2000,"VA","democrat",TRUE,134,"VA (n=134)"
-"124",2000,"VA","republican",TRUE,134,"VA (n=134)"
-"125",2000,"WI","democrat",FALSE,72,"WI (n=72)"
-"126",2000,"WI","republican",TRUE,72,"WI (n=72)"
-"127",2000,"WV","democrat",TRUE,55,"WV (n=55)"
-"128",2000,"WV","republican",TRUE,55,"WV (n=55)"
-"129",2004,"AL","democrat",TRUE,67,"AL (n=67)"
-"130",2004,"AL","republican",TRUE,67,"AL (n=67)"
-"131",2004,"AR","democrat",TRUE,75,"AR (n=75)"
-"132",2004,"AR","republican",TRUE,75,"AR (n=75)"
-"133",2004,"CA","democrat",TRUE,58,"CA (n=58)"
-"134",2004,"CA","republican",TRUE,58,"CA (n=58)"
-"135",2004,"CO","democrat",TRUE,64,"CO (n=64)"
-"136",2004,"CO","republican",TRUE,64,"CO (n=64)"
-"137",2004,"FL","democrat",TRUE,67,"FL (n=67)"
-"138",2004,"FL","republican",TRUE,67,"FL (n=67)"
-"139",2004,"GA","democrat",FALSE,159,"GA (n=159)"
-"140",2004,"GA","republican",TRUE,159,"GA (n=159)"
-"141",2004,"IA","democrat",FALSE,99,"IA (n=99)"
-"142",2004,"IA","republican",FALSE,99,"IA (n=99)"
-"143",2004,"ID","democrat",TRUE,44,"ID (n=44)"
-"144",2004,"ID","republican",TRUE,44,"ID (n=44)"
-"145",2004,"IL","democrat",TRUE,102,"IL (n=102)"
-"146",2004,"IL","republican",FALSE,102,"IL (n=102)"
-"147",2004,"IN","democrat",FALSE,92,"IN (n=92)"
-"148",2004,"IN","republican",TRUE,92,"IN (n=92)"
-"149",2004,"KS","democrat",TRUE,105,"KS (n=105)"
-"150",2004,"KS","republican",TRUE,105,"KS (n=105)"
-"151",2004,"KY","democrat",TRUE,120,"KY (n=120)"
-"152",2004,"KY","republican",TRUE,120,"KY (n=120)"
-"153",2004,"LA","democrat",TRUE,64,"LA (n=64)"
-"154",2004,"LA","republican",TRUE,64,"LA (n=64)"
-"155",2004,"MI","democrat",FALSE,83,"MI (n=83)"
-"156",2004,"MI","republican",TRUE,83,"MI (n=83)"
-"157",2004,"MN","democrat",TRUE,87,"MN (n=87)"
-"158",2004,"MN","republican",TRUE,87,"MN (n=87)"
-"159",2004,"MO","democrat",TRUE,116,"MO (n=116)"
-"160",2004,"MO","republican",TRUE,116,"MO (n=116)"
-"161",2004,"MS","democrat",TRUE,82,"MS (n=82)"
-"162",2004,"MS","republican",FALSE,82,"MS (n=82)"
-"163",2004,"MT","democrat",TRUE,56,"MT (n=56)"
-"164",2004,"MT","republican",TRUE,56,"MT (n=56)"
-"165",2004,"NC","democrat",TRUE,100,"NC (n=100)"
-"166",2004,"NC","republican",TRUE,100,"NC (n=100)"
-"167",2004,"ND","democrat",TRUE,53,"ND (n=53)"
-"168",2004,"ND","republican",TRUE,53,"ND (n=53)"
-"169",2004,"NE","democrat",TRUE,93,"NE (n=93)"
-"170",2004,"NE","republican",TRUE,93,"NE (n=93)"
-"171",2004,"NY","democrat",TRUE,62,"NY (n=62)"
-"172",2004,"NY","republican",TRUE,62,"NY (n=62)"
-"173",2004,"OH","democrat",TRUE,88,"OH (n=88)"
-"174",2004,"OH","republican",TRUE,88,"OH (n=88)"
-"175",2004,"OK","democrat",TRUE,77,"OK (n=77)"
-"176",2004,"OK","republican",TRUE,77,"OK (n=77)"
-"177",2004,"PA","democrat",TRUE,67,"PA (n=67)"
-"178",2004,"PA","republican",TRUE,67,"PA (n=67)"
-"179",2004,"SC","democrat",TRUE,46,"SC (n=46)"
-"180",2004,"SC","republican",TRUE,46,"SC (n=46)"
-"181",2004,"SD","democrat",TRUE,66,"SD (n=66)"
-"182",2004,"SD","republican",TRUE,66,"SD (n=66)"
-"183",2004,"TN","democrat",TRUE,95,"TN (n=95)"
-"184",2004,"TN","republican",TRUE,95,"TN (n=95)"
-"185",2004,"TX","democrat",FALSE,254,"TX (n=254)"
-"186",2004,"TX","republican",FALSE,254,"TX (n=254)"
-"187",2004,"VA","democrat",FALSE,134,"VA (n=134)"
-"188",2004,"VA","republican",TRUE,134,"VA (n=134)"
-"189",2004,"WI","democrat",TRUE,72,"WI (n=72)"
-"190",2004,"WI","republican",TRUE,72,"WI (n=72)"
-"191",2004,"WV","democrat",TRUE,55,"WV (n=55)"
-"192",2004,"WV","republican",TRUE,55,"WV (n=55)"
-"193",2008,"AL","democrat",FALSE,67,"AL (n=67)"
-"194",2008,"AL","republican",TRUE,67,"AL (n=67)"
-"195",2008,"AR","democrat",FALSE,75,"AR (n=75)"
-"196",2008,"AR","republican",TRUE,75,"AR (n=75)"
-"197",2008,"CA","democrat",TRUE,58,"CA (n=58)"
-"198",2008,"CA","republican",TRUE,58,"CA (n=58)"
-"199",2008,"CO","democrat",TRUE,64,"CO (n=64)"
-"200",2008,"CO","republican",TRUE,64,"CO (n=64)"
-"201",2008,"FL","democrat",TRUE,67,"FL (n=67)"
-"202",2008,"FL","republican",TRUE,67,"FL (n=67)"
-"203",2008,"GA","democrat",FALSE,159,"GA (n=159)"
-"204",2008,"GA","republican",TRUE,159,"GA (n=159)"
-"205",2008,"IA","democrat",FALSE,99,"IA (n=99)"
-"206",2008,"IA","republican",FALSE,99,"IA (n=99)"
-"207",2008,"ID","democrat",TRUE,44,"ID (n=44)"
-"208",2008,"ID","republican",TRUE,44,"ID (n=44)"
-"209",2008,"IL","democrat",TRUE,102,"IL (n=102)"
-"210",2008,"IL","republican",TRUE,102,"IL (n=102)"
-"211",2008,"IN","democrat",FALSE,92,"IN (n=92)"
-"212",2008,"IN","republican",TRUE,92,"IN (n=92)"
-"213",2008,"KS","democrat",TRUE,105,"KS (n=105)"
-"214",2008,"KS","republican",TRUE,105,"KS (n=105)"
-"215",2008,"KY","democrat",TRUE,120,"KY (n=120)"
-"216",2008,"KY","republican",TRUE,120,"KY (n=120)"
-"217",2008,"LA","democrat",FALSE,64,"LA (n=64)"
-"218",2008,"LA","republican",TRUE,64,"LA (n=64)"
-"219",2008,"MI","democrat",TRUE,83,"MI (n=83)"
-"220",2008,"MI","republican",TRUE,83,"MI (n=83)"
-"221",2008,"MN","democrat",TRUE,87,"MN (n=87)"
-"222",2008,"MN","republican",TRUE,87,"MN (n=87)"
-"223",2008,"MO","democrat",TRUE,116,"MO (n=116)"
-"224",2008,"MO","republican",TRUE,116,"MO (n=116)"
-"225",2008,"MS","democrat",TRUE,82,"MS (n=82)"
-"226",2008,"MS","republican",FALSE,82,"MS (n=82)"
-"227",2008,"MT","democrat",TRUE,56,"MT (n=56)"
-"228",2008,"MT","republican",TRUE,56,"MT (n=56)"
-"229",2008,"NC","democrat",TRUE,100,"NC (n=100)"
-"230",2008,"NC","republican",TRUE,100,"NC (n=100)"
-"231",2008,"ND","democrat",TRUE,53,"ND (n=53)"
-"232",2008,"ND","republican",TRUE,53,"ND (n=53)"
-"233",2008,"NE","democrat",TRUE,93,"NE (n=93)"
-"234",2008,"NE","republican",TRUE,93,"NE (n=93)"
-"235",2008,"NY","democrat",TRUE,62,"NY (n=62)"
-"236",2008,"NY","republican",TRUE,62,"NY (n=62)"
-"237",2008,"OH","democrat",TRUE,88,"OH (n=88)"
-"238",2008,"OH","republican",TRUE,88,"OH (n=88)"
-"239",2008,"OK","democrat",TRUE,77,"OK (n=77)"
-"240",2008,"OK","republican",TRUE,77,"OK (n=77)"
-"241",2008,"PA","democrat",TRUE,67,"PA (n=67)"
-"242",2008,"PA","republican",TRUE,67,"PA (n=67)"
-"243",2008,"SC","democrat",TRUE,46,"SC (n=46)"
-"244",2008,"SC","republican",TRUE,46,"SC (n=46)"
-"245",2008,"SD","democrat",TRUE,66,"SD (n=66)"
-"246",2008,"SD","republican",TRUE,66,"SD (n=66)"
-"247",2008,"TN","democrat",TRUE,95,"TN (n=95)"
-"248",2008,"TN","republican",TRUE,95,"TN (n=95)"
-"249",2008,"TX","democrat",TRUE,254,"TX (n=254)"
-"250",2008,"TX","republican",TRUE,254,"TX (n=254)"
-"251",2008,"VA","democrat",TRUE,134,"VA (n=134)"
-"252",2008,"VA","republican",TRUE,134,"VA (n=134)"
-"253",2008,"WI","democrat",TRUE,72,"WI (n=72)"
-"254",2008,"WI","republican",TRUE,72,"WI (n=72)"
-"255",2008,"WV","democrat",TRUE,55,"WV (n=55)"
-"256",2008,"WV","republican",TRUE,55,"WV (n=55)"
-"257",2012,"AL","democrat",FALSE,67,"AL (n=67)"
-"258",2012,"AL","republican",TRUE,67,"AL (n=67)"
-"259",2012,"AR","democrat",TRUE,75,"AR (n=75)"
-"260",2012,"AR","republican",TRUE,75,"AR (n=75)"
-"261",2012,"CA","democrat",TRUE,58,"CA (n=58)"
-"262",2012,"CA","republican",TRUE,58,"CA (n=58)"
-"263",2012,"CO","democrat",TRUE,64,"CO (n=64)"
-"264",2012,"CO","republican",TRUE,64,"CO (n=64)"
-"265",2012,"FL","democrat",TRUE,67,"FL (n=67)"
-"266",2012,"FL","republican",TRUE,67,"FL (n=67)"
-"267",2012,"GA","democrat",TRUE,159,"GA (n=159)"
-"268",2012,"GA","republican",TRUE,159,"GA (n=159)"
-"269",2012,"IA","democrat",FALSE,99,"IA (n=99)"
-"270",2012,"IA","republican",FALSE,99,"IA (n=99)"
-"271",2012,"ID","democrat",TRUE,44,"ID (n=44)"
-"272",2012,"ID","republican",TRUE,44,"ID (n=44)"
-"273",2012,"IL","democrat",TRUE,102,"IL (n=102)"
-"274",2012,"IL","republican",TRUE,102,"IL (n=102)"
-"275",2012,"IN","democrat",FALSE,92,"IN (n=92)"
-"276",2012,"IN","republican",TRUE,92,"IN (n=92)"
-"277",2012,"KS","democrat",TRUE,105,"KS (n=105)"
-"278",2012,"KS","republican",TRUE,105,"KS (n=105)"
-"279",2012,"KY","democrat",FALSE,120,"KY (n=120)"
-"280",2012,"KY","republican",TRUE,120,"KY (n=120)"
-"281",2012,"LA","democrat",TRUE,64,"LA (n=64)"
-"282",2012,"LA","republican",TRUE,64,"LA (n=64)"
-"283",2012,"MI","democrat",TRUE,83,"MI (n=83)"
-"284",2012,"MI","republican",TRUE,83,"MI (n=83)"
-"285",2012,"MN","democrat",TRUE,87,"MN (n=87)"
-"286",2012,"MN","republican",FALSE,87,"MN (n=87)"
-"287",2012,"MO","democrat",TRUE,116,"MO (n=116)"
-"288",2012,"MO","republican",TRUE,116,"MO (n=116)"
-"289",2012,"MS","democrat",TRUE,82,"MS (n=82)"
-"290",2012,"MS","republican",TRUE,82,"MS (n=82)"
-"291",2012,"MT","democrat",TRUE,56,"MT (n=56)"
-"292",2012,"MT","republican",TRUE,56,"MT (n=56)"
-"293",2012,"NC","democrat",TRUE,100,"NC (n=100)"
-"294",2012,"NC","republican",TRUE,100,"NC (n=100)"
-"295",2012,"ND","democrat",TRUE,53,"ND (n=53)"
-"296",2012,"ND","republican",FALSE,53,"ND (n=53)"
-"297",2012,"NE","democrat",TRUE,93,"NE (n=93)"
-"298",2012,"NE","republican",TRUE,93,"NE (n=93)"
-"299",2012,"NY","democrat",TRUE,62,"NY (n=62)"
-"300",2012,"NY","republican",TRUE,62,"NY (n=62)"
-"301",2012,"OH","democrat",TRUE,88,"OH (n=88)"
-"302",2012,"OH","republican",TRUE,88,"OH (n=88)"
-"303",2012,"OK","democrat",TRUE,77,"OK (n=77)"
-"304",2012,"OK","republican",TRUE,77,"OK (n=77)"
-"305",2012,"PA","democrat",TRUE,67,"PA (n=67)"
-"306",2012,"PA","republican",TRUE,67,"PA (n=67)"
-"307",2012,"SC","democrat",TRUE,46,"SC (n=46)"
-"308",2012,"SC","republican",TRUE,46,"SC (n=46)"
-"309",2012,"SD","democrat",TRUE,66,"SD (n=66)"
-"310",2012,"SD","republican",TRUE,66,"SD (n=66)"
-"311",2012,"TN","democrat",TRUE,95,"TN (n=95)"
-"312",2012,"TN","republican",TRUE,95,"TN (n=95)"
-"313",2012,"TX","democrat",TRUE,254,"TX (n=254)"
-"314",2012,"TX","republican",TRUE,254,"TX (n=254)"
-"315",2012,"VA","democrat",TRUE,134,"VA (n=134)"
-"316",2012,"VA","republican",TRUE,134,"VA (n=134)"
-"317",2012,"WI","democrat",TRUE,72,"WI (n=72)"
-"318",2012,"WI","republican",TRUE,72,"WI (n=72)"
-"319",2012,"WV","democrat",TRUE,55,"WV (n=55)"
-"320",2012,"WV","republican",TRUE,55,"WV (n=55)"
-"321",2016,"AL","democrat",TRUE,67,"AL (n=67)"
-"322",2016,"AL","republican",TRUE,67,"AL (n=67)"
-"323",2016,"AR","democrat",FALSE,75,"AR (n=75)"
-"324",2016,"AR","republican",TRUE,75,"AR (n=75)"
-"325",2016,"CA","democrat",FALSE,58,"CA (n=58)"
-"326",2016,"CA","republican",FALSE,58,"CA (n=58)"
-"327",2016,"CO","democrat",TRUE,64,"CO (n=64)"
-"328",2016,"CO","republican",TRUE,64,"CO (n=64)"
-"329",2016,"FL","democrat",TRUE,67,"FL (n=67)"
-"330",2016,"FL","republican",TRUE,67,"FL (n=67)"
-"331",2016,"GA","democrat",TRUE,159,"GA (n=159)"
-"332",2016,"GA","republican",TRUE,159,"GA (n=159)"
-"333",2016,"IA","democrat",TRUE,99,"IA (n=99)"
-"334",2016,"IA","republican",FALSE,99,"IA (n=99)"
-"335",2016,"ID","democrat",TRUE,44,"ID (n=44)"
-"336",2016,"ID","republican",TRUE,44,"ID (n=44)"
-"337",2016,"IL","democrat",TRUE,102,"IL (n=102)"
-"338",2016,"IL","republican",TRUE,102,"IL (n=102)"
-"339",2016,"IN","democrat",TRUE,92,"IN (n=92)"
-"340",2016,"IN","republican",TRUE,92,"IN (n=92)"
-"341",2016,"KS","democrat",TRUE,105,"KS (n=105)"
-"342",2016,"KS","republican",TRUE,105,"KS (n=105)"
-"343",2016,"KY","democrat",FALSE,120,"KY (n=120)"
-"344",2016,"KY","republican",FALSE,120,"KY (n=120)"
-"345",2016,"LA","democrat",TRUE,64,"LA (n=64)"
-"346",2016,"LA","republican",TRUE,64,"LA (n=64)"
-"347",2016,"MI","democrat",TRUE,83,"MI (n=83)"
-"348",2016,"MI","republican",FALSE,83,"MI (n=83)"
-"349",2016,"MN","democrat",TRUE,87,"MN (n=87)"
-"350",2016,"MN","republican",TRUE,87,"MN (n=87)"
-"351",2016,"MO","democrat",TRUE,116,"MO (n=116)"
-"352",2016,"MO","republican",TRUE,116,"MO (n=116)"
-"353",2016,"MS","democrat",TRUE,82,"MS (n=82)"
-"354",2016,"MS","republican",FALSE,82,"MS (n=82)"
-"355",2016,"MT","democrat",TRUE,56,"MT (n=56)"
-"356",2016,"MT","republican",TRUE,56,"MT (n=56)"
-"357",2016,"NC","democrat",TRUE,100,"NC (n=100)"
-"358",2016,"NC","republican",TRUE,100,"NC (n=100)"
-"359",2016,"ND","democrat",TRUE,53,"ND (n=53)"
-"360",2016,"ND","republican",TRUE,53,"ND (n=53)"
-"361",2016,"NE","democrat",TRUE,93,"NE (n=93)"
-"362",2016,"NE","republican",TRUE,93,"NE (n=93)"
-"363",2016,"NY","democrat",TRUE,62,"NY (n=62)"
-"364",2016,"NY","republican",TRUE,62,"NY (n=62)"
-"365",2016,"OH","democrat",TRUE,88,"OH (n=88)"
-"366",2016,"OH","republican",TRUE,88,"OH (n=88)"
-"367",2016,"OK","democrat",FALSE,77,"OK (n=77)"
-"368",2016,"OK","republican",TRUE,77,"OK (n=77)"
-"369",2016,"PA","democrat",TRUE,67,"PA (n=67)"
-"370",2016,"PA","republican",TRUE,67,"PA (n=67)"
-"371",2016,"SC","democrat",TRUE,46,"SC (n=46)"
-"372",2016,"SC","republican",TRUE,46,"SC (n=46)"
-"373",2016,"SD","democrat",TRUE,66,"SD (n=66)"
-"374",2016,"SD","republican",TRUE,66,"SD (n=66)"
-"375",2016,"TN","democrat",TRUE,95,"TN (n=95)"
-"376",2016,"TN","republican",TRUE,95,"TN (n=95)"
-"377",2016,"TX","democrat",TRUE,254,"TX (n=254)"
-"378",2016,"TX","republican",TRUE,254,"TX (n=254)"
-"379",2016,"VA","democrat",TRUE,134,"VA (n=134)"
-"380",2016,"VA","republican",TRUE,134,"VA (n=134)"
-"381",2016,"WI","democrat",TRUE,72,"WI (n=72)"
-"382",2016,"WI","republican",TRUE,72,"WI (n=72)"
-"383",2016,"WV","democrat",TRUE,55,"WV (n=55)"
-"384",2016,"WV","republican",TRUE,55,"WV (n=55)"
-"385",2020,"AL","democrat",TRUE,67,"AL (n=67)"
-"386",2020,"AL","republican",TRUE,67,"AL (n=67)"
-"387",2020,"AR","democrat",TRUE,75,"AR (n=75)"
-"388",2020,"AR","republican",TRUE,75,"AR (n=75)"
-"389",2020,"CA","democrat",TRUE,58,"CA (n=58)"
-"390",2020,"CA","republican",FALSE,58,"CA (n=58)"
-"391",2020,"CO","democrat",TRUE,64,"CO (n=64)"
-"392",2020,"CO","republican",TRUE,64,"CO (n=64)"
-"393",2020,"FL","democrat",TRUE,67,"FL (n=67)"
-"394",2020,"FL","republican",TRUE,67,"FL (n=67)"
-"395",2020,"GA","democrat",TRUE,159,"GA (n=159)"
-"396",2020,"GA","republican",TRUE,159,"GA (n=159)"
-"397",2020,"IA","democrat",TRUE,99,"IA (n=99)"
-"398",2020,"IA","republican",FALSE,99,"IA (n=99)"
-"399",2020,"ID","democrat",TRUE,44,"ID (n=44)"
-"400",2020,"ID","republican",TRUE,44,"ID (n=44)"
-"401",2020,"IL","democrat",TRUE,102,"IL (n=102)"
-"402",2020,"IL","republican",TRUE,102,"IL (n=102)"
-"403",2020,"IN","democrat",TRUE,92,"IN (n=92)"
-"404",2020,"IN","republican",TRUE,92,"IN (n=92)"
-"405",2020,"KS","democrat",TRUE,105,"KS (n=105)"
-"406",2020,"KS","republican",TRUE,105,"KS (n=105)"
-"407",2020,"KY","democrat",TRUE,120,"KY (n=120)"
-"408",2020,"KY","republican",FALSE,120,"KY (n=120)"
-"409",2020,"LA","democrat",TRUE,64,"LA (n=64)"
-"410",2020,"LA","republican",TRUE,64,"LA (n=64)"
-"411",2020,"MI","democrat",TRUE,83,"MI (n=83)"
-"412",2020,"MI","republican",TRUE,83,"MI (n=83)"
-"413",2020,"MN","democrat",TRUE,87,"MN (n=87)"
-"414",2020,"MN","republican",TRUE,87,"MN (n=87)"
-"415",2020,"MO","democrat",TRUE,115,"MO (n=115)"
-"416",2020,"MO","republican",TRUE,115,"MO (n=115)"
-"417",2020,"MS","democrat",TRUE,82,"MS (n=82)"
-"418",2020,"MS","republican",TRUE,82,"MS (n=82)"
-"419",2020,"MT","democrat",TRUE,56,"MT (n=56)"
-"420",2020,"MT","republican",TRUE,56,"MT (n=56)"
-"421",2020,"NC","democrat",TRUE,100,"NC (n=100)"
-"422",2020,"NC","republican",TRUE,100,"NC (n=100)"
-"423",2020,"ND","democrat",TRUE,53,"ND (n=53)"
-"424",2020,"ND","republican",FALSE,53,"ND (n=53)"
-"425",2020,"NE","democrat",TRUE,93,"NE (n=93)"
-"426",2020,"NE","republican",TRUE,93,"NE (n=93)"
-"427",2020,"NY","democrat",TRUE,62,"NY (n=62)"
-"428",2020,"NY","republican",TRUE,62,"NY (n=62)"
-"429",2020,"OH","democrat",FALSE,88,"OH (n=88)"
-"430",2020,"OH","republican",TRUE,88,"OH (n=88)"
-"431",2020,"OK","democrat",TRUE,77,"OK (n=77)"
-"432",2020,"OK","republican",TRUE,77,"OK (n=77)"
-"433",2020,"PA","democrat",FALSE,67,"PA (n=67)"
-"434",2020,"PA","republican",TRUE,67,"PA (n=67)"
-"435",2020,"SC","democrat",TRUE,46,"SC (n=46)"
-"436",2020,"SC","republican",FALSE,46,"SC (n=46)"
-"437",2020,"SD","democrat",TRUE,66,"SD (n=66)"
-"438",2020,"SD","republican",TRUE,66,"SD (n=66)"
-"439",2020,"TN","democrat",TRUE,95,"TN (n=95)"
-"440",2020,"TN","republican",TRUE,95,"TN (n=95)"
-"441",2020,"TX","democrat",TRUE,254,"TX (n=254)"
-"442",2020,"TX","republican",TRUE,254,"TX (n=254)"
-"443",2020,"VA","democrat",TRUE,133,"VA (n=133)"
-"444",2020,"VA","republican",TRUE,133,"VA (n=133)"
-"445",2020,"WI","democrat",TRUE,72,"WI (n=72)"
-"446",2020,"WI","republican",TRUE,72,"WI (n=72)"
-"447",2020,"WV","democrat",TRUE,55,"WV (n=55)"
-"448",2020,"WV","republican",TRUE,55,"WV (n=55)"
+"","year","state","party","n","df","chisq","p","differs_from_benford"
+"1",1996,"AL","democrat",9,8,19.8344796084282,0.0109807405096505,TRUE
+"2",1996,"AL","republican",9,8,4.168120951552,0.84164524855173,FALSE
+"3",1996,"AR","democrat",9,8,18.7454586679087,0.016281834261113,TRUE
+"4",1996,"AR","republican",9,8,17.0153788444223,0.0299493388392251,TRUE
+"5",1996,"CA","democrat",9,8,8.81449003281233,0.35818638284211,FALSE
+"6",1996,"CA","republican",9,8,4.33203479019878,0.825992802033477,FALSE
+"7",1996,"CO","democrat",9,8,3.65100241045304,0.887159700067224,FALSE
+"8",1996,"CO","republican",9,8,7.82317060863854,0.450931396521377,FALSE
+"9",1996,"FL","democrat",9,8,5.11480382762548,0.745238246761528,FALSE
+"10",1996,"FL","republican",9,8,3.48172780914681,0.900603118059783,FALSE
+"11",1996,"GA","democrat",9,8,13.5464525554443,0.0943801443979085,FALSE
+"12",1996,"GA","republican",9,8,10.0191608236169,0.263683651562795,FALSE
+"13",1996,"IA","democrat",9,8,35.2378581605877,2.41982931471163e-05,TRUE
+"14",1996,"IA","republican",9,8,27.3476096455948,0.00061560078419898,TRUE
+"15",1996,"ID","democrat",9,8,18.088435130664,0.020573159985201,TRUE
+"16",1996,"ID","republican",9,8,4.02582818794282,0.854785659388499,FALSE
+"17",1996,"IL","democrat",9,8,8.36082916686155,0.39904003677895,FALSE
+"18",1996,"IL","republican",9,8,17.1437809794569,0.0286462403853935,TRUE
+"19",1996,"IN","democrat",9,8,20.1766109480907,0.00968813066161261,TRUE
+"20",1996,"IN","republican",9,8,12.8378000486603,0.117553594084794,FALSE
+"21",1996,"KS","democrat",9,8,8.34748270515655,0.40028375116347,FALSE
+"22",1996,"KS","republican",9,8,12.385803492563,0.134802499495191,FALSE
+"23",1996,"KY","democrat",9,8,11.0247726482146,0.200299493710364,FALSE
+"24",1996,"KY","republican",9,8,9.90393774043544,0.271833099990179,FALSE
+"25",1996,"LA","democrat",9,8,5.14205191609053,0.742291165135645,FALSE
+"26",1996,"LA","republican",9,8,4.63252861309714,0.796032269051477,FALSE
+"27",1996,"MI","democrat",9,8,11.0367923165779,0.199623198511555,FALSE
+"28",1996,"MI","republican",9,8,7.68173786035355,0.465159888988401,FALSE
+"29",1996,"MN","democrat",9,8,7.44276618392981,0.489699251909791,FALSE
+"30",1996,"MN","republican",9,8,7.10516864143386,0.525329512244966,FALSE
+"31",1996,"MO","democrat",9,8,13.0078427507016,0.111580052156846,FALSE
+"32",1996,"MO","republican",9,8,10.1889685853251,0.252012570805708,FALSE
+"33",1996,"MS","democrat",9,8,20.5918060773232,0.00831455162211955,TRUE
+"34",1996,"MS","republican",9,8,15.9951552017566,0.0424495084550338,TRUE
+"35",1996,"MT","democrat",9,8,8.91323989598495,0.349667773365598,FALSE
+"36",1996,"MT","republican",9,8,9.89534031281917,0.272448668056831,FALSE
+"37",1996,"NC","democrat",9,8,13.455269971558,0.0971157875453512,FALSE
+"38",1996,"NC","republican",9,8,5.36650246654008,0.717781232519643,FALSE
+"39",1996,"ND","democrat",9,8,7.11806257188597,0.523949919043392,FALSE
+"40",1996,"ND","republican",9,8,10.1761132189622,0.252882073819511,FALSE
+"41",1996,"NE","democrat",9,8,7.519277738243,0.481776963265354,FALSE
+"42",1996,"NE","republican",9,8,7.9350156867246,0.439843649980204,FALSE
+"43",1996,"NY","democrat",9,8,7.44268488733469,0.489707701386635,FALSE
+"44",1996,"NY","republican",9,8,13.4290889446772,0.0979141370748665,FALSE
+"45",1996,"OH","democrat",9,8,13.2689004481906,0.102926422224606,FALSE
+"46",1996,"OH","republican",9,8,13.2969241079363,0.102033555567307,FALSE
+"47",1996,"OK","democrat",9,8,13.3632942200652,0.0999461314844014,FALSE
+"48",1996,"OK","republican",9,8,14.3672722830492,0.0726807513059002,FALSE
+"49",1996,"PA","democrat",9,8,17.026458425619,0.0298347464463537,TRUE
+"50",1996,"PA","republican",9,8,13.8487802977392,0.0857930492758677,FALSE
+"51",1996,"SC","democrat",9,8,11.7403418935924,0.163170607737229,FALSE
+"52",1996,"SC","republican",9,8,11.9966557718051,0.151353156395302,FALSE
+"53",1996,"SD","democrat",9,8,4.87757215894757,0.770577697345665,FALSE
+"54",1996,"SD","republican",9,8,9.90545224074761,0.27172477110757,FALSE
+"55",1996,"TN","democrat",9,8,9.15091062048069,0.329725802423317,FALSE
+"56",1996,"TN","republican",9,8,7.49904722316412,0.483865855224143,FALSE
+"57",1996,"TX","democrat",9,8,8.26129405718048,0.408371422730507,FALSE
+"58",1996,"TX","republican",9,8,7.2639751630001,0.508438083030944,FALSE
+"59",1996,"VA","democrat",9,8,6.34190205941265,0.608992095425865,FALSE
+"60",1996,"VA","republican",9,8,14.5702130369929,0.0680612402451543,FALSE
+"61",1996,"WI","democrat",9,8,5.40816397559944,0.713192026127649,FALSE
+"62",1996,"WI","republican",9,8,6.91490713162141,0.54584084225451,FALSE
+"63",1996,"WV","democrat",9,8,4.89777030688454,0.768444646940931,FALSE
+"64",1996,"WV","republican",9,8,6.37124748579968,0.605721514854297,FALSE
+"65",2000,"AL","democrat",9,8,24.5828086063619,0.00182872746917114,TRUE
+"66",2000,"AL","republican",9,8,12.9297423210459,0.114289927414865,FALSE
+"67",2000,"AR","democrat",9,8,14.3011739087712,0.0742453773464298,FALSE
+"68",2000,"AR","republican",9,8,20.7522882826674,0.00783538835019353,TRUE
+"69",2000,"CA","democrat",9,8,7.86353994046107,0.446912359546589,FALSE
+"70",2000,"CA","republican",9,8,6.8283589032548,0.555259794725005,FALSE
+"71",2000,"CO","democrat",9,8,11.9492271008981,0.153483662475689,FALSE
+"72",2000,"CO","republican",9,8,5.96906919861329,0.650696738950691,FALSE
+"73",2000,"FL","democrat",9,8,6.37912690509836,0.60484381220066,FALSE
+"74",2000,"FL","republican",9,8,6.08625770935677,0.637570213538553,FALSE
+"75",2000,"GA","democrat",9,8,19.4598428326908,0.0125847181205866,TRUE
+"76",2000,"GA","republican",9,8,9.82902146272679,0.277232103014387,FALSE
+"77",2000,"IA","democrat",9,8,33.142598190737,5.80489851289614e-05,TRUE
+"78",2000,"IA","republican",9,8,27.6022832172232,0.000556090918512685,TRUE
+"79",2000,"ID","democrat",9,8,9.81830090332954,0.278011189072023,FALSE
+"80",2000,"ID","republican",9,8,8.50759087792816,0.385519279720178,FALSE
+"81",2000,"IL","democrat",9,8,3.59434151233005,0.891745752373175,FALSE
+"82",2000,"IL","republican",9,8,21.2108718443146,0.00660786834519283,TRUE
+"83",2000,"IN","democrat",9,8,17.8311983469758,0.0225282397709259,TRUE
+"84",2000,"IN","republican",9,8,8.82659650657181,0.357134721846075,FALSE
+"85",2000,"KS","democrat",9,8,11.369233750343,0.181642561328744,FALSE
+"86",2000,"KS","republican",9,8,12.1441892618209,0.144885534124376,FALSE
+"87",2000,"KY","democrat",9,8,9.90044731882898,0.272082885343092,FALSE
+"88",2000,"KY","republican",9,8,19.6487818103743,0.0117497199523532,TRUE
+"89",2000,"LA","democrat",9,8,2.85091591867048,0.943361983098235,FALSE
+"90",2000,"LA","republican",9,8,10.6475578146136,0.222479588113108,FALSE
+"91",2000,"MI","democrat",9,8,12.6114703426627,0.125935339441324,FALSE
+"92",2000,"MI","republican",9,8,9.67446878686526,0.288621222001386,FALSE
+"93",2000,"MN","democrat",9,8,5.99803950062696,0.647451505682227,FALSE
+"94",2000,"MN","republican",9,8,5.13669857892093,0.742870704766048,FALSE
+"95",2000,"MO","democrat",9,8,14.787171808229,0.0634182998931258,FALSE
+"96",2000,"MO","republican",9,8,14.6756164758464,0.0657683965262685,FALSE
+"97",2000,"MS","democrat",9,8,11.2232738229198,0.189366298858306,FALSE
+"98",2000,"MS","republican",9,8,22.6507328718293,0.00384283396845542,TRUE
+"99",2000,"MT","democrat",9,8,5.02739293839209,0.754644364746039,FALSE
+"100",2000,"MT","republican",9,8,6.5524730597546,0.585593364490257,FALSE
+"101",2000,"NC","democrat",9,8,13.7091904122139,0.0896673051807987,FALSE
+"102",2000,"NC","republican",9,8,5.90427102720339,0.65795415911569,FALSE
+"103",2000,"ND","democrat",9,8,6.6530500352774,0.574485757344676,FALSE
+"104",2000,"ND","republican",9,8,9.14321688718429,0.33035887186254,FALSE
+"105",2000,"NE","democrat",9,8,17.268356599284,0.02743289803498,TRUE
+"106",2000,"NE","republican",9,8,14.8345220785336,0.062444074610421,FALSE
+"107",2000,"NY","democrat",9,8,5.32458088898593,0.722387707300022,FALSE
+"108",2000,"NY","republican",9,8,9.36962936479511,0.312080050272568,FALSE
+"109",2000,"OH","democrat",9,8,14.425580926881,0.0713252939635027,FALSE
+"110",2000,"OH","republican",9,8,9.03450611690069,0.339393431863081,FALSE
+"111",2000,"OK","democrat",9,8,6.89368275706328,0.548145851116509,FALSE
+"112",2000,"OK","republican",9,8,8.61919567029749,0.375430749841636,FALSE
+"113",2000,"PA","democrat",9,8,21.5337874168834,0.00585682923936897,TRUE
+"114",2000,"PA","republican",9,8,9.88748267209483,0.273012179885595,FALSE
+"115",2000,"SC","democrat",9,8,5.23465376006789,0.732226853799501,FALSE
+"116",2000,"SC","republican",9,8,10.0209304573691,0.263559944072966,FALSE
+"117",2000,"SD","democrat",9,8,6.31858233588062,0.611592960281943,FALSE
+"118",2000,"SD","republican",9,8,13.9359399683838,0.08345047306698,FALSE
+"119",2000,"TN","democrat",9,8,10.6302565414414,0.223541989583475,FALSE
+"120",2000,"TN","republican",9,8,5.26500278589982,0.728913091440605,FALSE
+"121",2000,"TX","democrat",9,8,12.6986967235779,0.122645595198113,FALSE
+"122",2000,"TX","republican",9,8,8.44977740965293,0.390811270278755,FALSE
+"123",2000,"VA","democrat",9,8,14.2778022913632,0.0748058382458757,FALSE
+"124",2000,"VA","republican",9,8,6.46560494659262,0.595225231023565,FALSE
+"125",2000,"WI","democrat",9,8,20.1086768051217,0.00993261802822175,TRUE
+"126",2000,"WI","republican",9,8,7.76592379573432,0.456663132701339,FALSE
+"127",2000,"WV","democrat",9,8,9.49216924938435,0.302491087816674,FALSE
+"128",2000,"WV","republican",9,8,12.7688688235147,0.120053420091941,FALSE
+"129",2004,"AL","democrat",9,8,11.8881627080524,0.156263977069954,FALSE
+"130",2004,"AL","republican",9,8,6.98078628695309,0.538707103279542,FALSE
+"131",2004,"AR","democrat",9,8,8.37355305060851,0.397856518433476,FALSE
+"132",2004,"AR","republican",9,8,11.9400351837161,0.153899486392158,FALSE
+"133",2004,"CA","democrat",9,8,6.52730603021329,0.588380462305286,FALSE
+"134",2004,"CA","republican",9,8,9.26223644505904,0.320659387548942,FALSE
+"135",2004,"CO","democrat",9,8,6.80127922469628,0.558217230306662,FALSE
+"136",2004,"CO","republican",9,8,3.43472534071482,0.904196147505543,FALSE
+"137",2004,"FL","democrat",9,8,8.74502439272102,0.364259967134226,FALSE
+"138",2004,"FL","republican",9,8,5.9549435313403,0.652279012280807,FALSE
+"139",2004,"GA","democrat",9,8,23.0809682324055,0.00326183302554393,TRUE
+"140",2004,"GA","republican",9,8,8.85463513369091,0.35470689586858,FALSE
+"141",2004,"IA","democrat",9,8,25.674581677561,0.00119374592159225,TRUE
+"142",2004,"IA","republican",9,8,38.3579793741164,6.46413609449545e-06,TRUE
+"143",2004,"ID","democrat",9,8,12.9755430328766,0.112693873401726,FALSE
+"144",2004,"ID","republican",9,8,4.87652388104025,0.770688267717841,FALSE
+"145",2004,"IL","democrat",9,8,5.40739500408043,0.713276829192384,FALSE
+"146",2004,"IL","republican",9,8,24.4078498095367,0.00195722577853558,TRUE
+"147",2004,"IN","democrat",9,8,23.7725979549719,0.0025018070463189,TRUE
+"148",2004,"IN","republican",9,8,9.24397825817806,0.322134287158191,FALSE
+"149",2004,"KS","democrat",9,8,10.9177820441775,0.206401446621471,FALSE
+"150",2004,"KS","republican",9,8,7.83377966923633,0.449873348503422,FALSE
+"151",2004,"KY","democrat",9,8,11.8387037144605,0.158546920659435,FALSE
+"152",2004,"KY","republican",9,8,15.2408878664539,0.0546273544211926,FALSE
+"153",2004,"LA","democrat",9,8,1.38585704429452,0.994444964104353,FALSE
+"154",2004,"LA","republican",9,8,10.3246078099782,0.242977744430139,FALSE
+"155",2004,"MI","democrat",9,8,21.0479692265729,0.00702108949429003,TRUE
+"156",2004,"MI","republican",9,8,8.54578341616317,0.38204790755684,FALSE
+"157",2004,"MN","democrat",9,8,2.65769473651003,0.95397154274261,FALSE
+"158",2004,"MN","republican",9,8,2.74503132205086,0.949325587590533,FALSE
+"159",2004,"MO","democrat",9,8,12.1219877623647,0.145843519468185,FALSE
+"160",2004,"MO","republican",9,8,10.6750371147756,0.220800422311613,FALSE
+"161",2004,"MS","democrat",9,8,10.6495845007129,0.222355399601424,FALSE
+"162",2004,"MS","republican",9,8,19.4573557458858,0.0125960779889436,TRUE
+"163",2004,"MT","democrat",9,8,7.07874370599729,0.528161174398679,FALSE
+"164",2004,"MT","republican",9,8,6.050899273213,0.641530310484412,FALSE
+"165",2004,"NC","democrat",9,8,13.6048672098038,0.0926637379429875,FALSE
+"166",2004,"NC","republican",9,8,4.983922911748,0.759293087135273,FALSE
+"167",2004,"ND","democrat",9,8,8.51536573843786,0.384811020380083,FALSE
+"168",2004,"ND","republican",9,8,13.7449852184807,0.0886592455080467,FALSE
+"169",2004,"NE","democrat",9,8,7.01310320459288,0.535219591183154,FALSE
+"170",2004,"NE","republican",9,8,12.3420804241257,0.136581253952296,FALSE
+"171",2004,"NY","democrat",9,8,8.40358316529247,0.395071715437349,FALSE
+"172",2004,"NY","republican",9,8,9.94320917087738,0.269034547880832,FALSE
+"173",2004,"OH","democrat",9,8,11.5161134577117,0.174134268045641,FALSE
+"174",2004,"OH","republican",9,8,14.9160379693328,0.0607987577392922,FALSE
+"175",2004,"OK","democrat",9,8,7.45743677603882,0.488175571724115,FALSE
+"176",2004,"OK","republican",9,8,7.05163807888848,0.531071707180103,FALSE
+"177",2004,"PA","democrat",9,8,11.4731860622305,0.176301573888923,FALSE
+"178",2004,"PA","republican",9,8,9.471846642688,0.304066583662889,FALSE
+"179",2004,"SC","democrat",9,8,7.5123409637268,0.482492737907431,FALSE
+"180",2004,"SC","republican",9,8,6.94114292911011,0.542996059294267,FALSE
+"181",2004,"SD","democrat",9,8,1.63737800619124,0.990185021496507,FALSE
+"182",2004,"SD","republican",9,8,13.505495248716,0.0956003688696565,FALSE
+"183",2004,"TN","democrat",9,8,15.4260042465635,0.0513725346642401,FALSE
+"184",2004,"TN","republican",9,8,3.13429397571406,0.925649171186922,FALSE
+"185",2004,"TX","democrat",9,8,16.852399281421,0.0316832619100938,TRUE
+"186",2004,"TX","republican",9,8,16.1061588352215,0.0408856127806705,TRUE
+"187",2004,"VA","democrat",9,8,15.7662077960498,0.0458512885369591,TRUE
+"188",2004,"VA","republican",9,8,2.97533876872928,0.935895615502344,FALSE
+"189",2004,"WI","democrat",9,8,13.8563975134681,0.0855860034554518,FALSE
+"190",2004,"WI","republican",9,8,7.68796980563121,0.464528183865853,FALSE
+"191",2004,"WV","democrat",9,8,4.84871480945958,0.77361659840587,FALSE
+"192",2004,"WV","republican",9,8,10.3122801836366,0.243788386729281,FALSE
+"193",2008,"AL","democrat",9,8,17.251111103958,0.0275979435230168,TRUE
+"194",2008,"AL","republican",9,8,9.48264136528238,0.303228998350415,FALSE
+"195",2008,"AR","democrat",9,8,16.3416248488265,0.0377433902456762,TRUE
+"196",2008,"AR","republican",9,8,12.9414167534313,0.113881234659264,FALSE
+"197",2008,"CA","democrat",9,8,11.7546913561436,0.162489113910902,FALSE
+"198",2008,"CA","republican",9,8,11.9335481510298,0.154193519578633,FALSE
+"199",2008,"CO","democrat",9,8,2.63573560846939,0.955100658183396,FALSE
+"200",2008,"CO","republican",9,8,13.6002647861372,0.0927979582518285,FALSE
+"201",2008,"FL","democrat",9,8,5.96833790209085,0.650778656093075,FALSE
+"202",2008,"FL","republican",9,8,15.0148130304667,0.0588580689347936,FALSE
+"203",2008,"GA","democrat",9,8,18.6103209555162,0.0170884593720576,TRUE
+"204",2008,"GA","republican",9,8,14.7539786901379,0.0641094635075913,FALSE
+"205",2008,"IA","democrat",9,8,15.5139728511629,0.0498890861470168,TRUE
+"206",2008,"IA","republican",9,8,36.6446083450576,1.33765794541155e-05,TRUE
+"207",2008,"ID","democrat",9,8,5.24511332196715,0.731085604022508,FALSE
+"208",2008,"ID","republican",9,8,5.29029007523668,0.726146631619872,FALSE
+"209",2008,"IL","democrat",9,8,7.24398356983636,0.510552171494169,FALSE
+"210",2008,"IL","republican",9,8,14.0487403741779,0.0805038289780338,FALSE
+"211",2008,"IN","democrat",9,8,22.3186667879164,0.00435851396991414,TRUE
+"212",2008,"IN","republican",9,8,11.6708106839106,0.1665068427605,FALSE
+"213",2008,"KS","democrat",9,8,8.05172512001108,0.428433838433813,FALSE
+"214",2008,"KS","republican",9,8,10.8543695258139,0.210088151124236,FALSE
+"215",2008,"KY","democrat",9,8,10.8110590850509,0.212636389411414,FALSE
+"216",2008,"KY","republican",9,8,9.87697269858761,0.273767266019139,FALSE
+"217",2008,"LA","democrat",9,8,16.7580525359684,0.0327294150234477,TRUE
+"218",2008,"LA","republican",9,8,11.928888222433,0.154405029769852,FALSE
+"219",2008,"MI","democrat",9,8,9.89487452556745,0.272482047772234,FALSE
+"220",2008,"MI","republican",9,8,5.47316246675353,0.706011520615071,FALSE
+"221",2008,"MN","democrat",9,8,2.72342598112947,0.950497955157788,FALSE
+"222",2008,"MN","republican",9,8,6.03830659363088,0.642940836716946,FALSE
+"223",2008,"MO","democrat",9,8,6.02259486864159,0.644700809088474,FALSE
+"224",2008,"MO","republican",9,8,11.3861322297828,0.180765347274596,FALSE
+"225",2008,"MS","democrat",9,8,9.11686971750298,0.33253316177758,FALSE
+"226",2008,"MS","republican",9,8,16.0626972147984,0.0414914631001113,TRUE
+"227",2008,"MT","democrat",9,8,15.094198752663,0.0573394980455565,FALSE
+"228",2008,"MT","republican",9,8,6.32578080761532,0.610789941673437,FALSE
+"229",2008,"NC","democrat",9,8,7.95773340702519,0.437609733164541,FALSE
+"230",2008,"NC","republican",9,8,7.5547629554932,0.478123277790134,FALSE
+"231",2008,"ND","democrat",9,8,5.21277793341479,0.734610904496494,FALSE
+"232",2008,"ND","republican",9,8,15.3908766290675,0.0519761426605712,FALSE
+"233",2008,"NE","democrat",9,8,6.41850770129126,0.600460273559828,FALSE
+"234",2008,"NE","republican",9,8,8.0746973327269,0.426207704185023,FALSE
+"235",2008,"NY","democrat",9,8,7.35270273232067,0.49910014698184,FALSE
+"236",2008,"NY","republican",9,8,9.50269731814594,0.30167721826372,FALSE
+"237",2008,"OH","democrat",9,8,14.7104674214833,0.0650258450143,FALSE
+"238",2008,"OH","republican",9,8,10.8614402745837,0.209674467618806,FALSE
+"239",2008,"OK","democrat",9,8,8.78660526490485,0.360616404070056,FALSE
+"240",2008,"OK","republican",9,8,9.17828468319925,0.327480157644585,FALSE
+"241",2008,"PA","democrat",9,8,13.8099781421571,0.086854703008122,FALSE
+"242",2008,"PA","republican",9,8,9.79210269398994,0.27992191125738,FALSE
+"243",2008,"SC","democrat",9,8,7.24860485692093,0.510063151303559,FALSE
+"244",2008,"SC","republican",9,8,11.3156461331332,0.184447573885793,FALSE
+"245",2008,"SD","democrat",9,8,6.7728112674184,0.561331371149799,FALSE
+"246",2008,"SD","republican",9,8,11.6546391879716,0.167290905281445,FALSE
+"247",2008,"TN","democrat",9,8,3.63242367538436,0.888672820081494,FALSE
+"248",2008,"TN","republican",9,8,11.5116588429075,0.174358138158268,FALSE
+"249",2008,"TX","democrat",9,8,4.62951585223201,0.796339956872484,FALSE
+"250",2008,"TX","republican",9,8,6.10950014292251,0.634967607792937,FALSE
+"251",2008,"VA","democrat",9,8,12.0112063817901,0.150704581562422,FALSE
+"252",2008,"VA","republican",9,8,10.6832695404078,0.220299329243468,FALSE
+"253",2008,"WI","democrat",9,8,11.1902157667425,0.191152504304253,FALSE
+"254",2008,"WI","republican",9,8,7.67934601096436,0.465402454859712,FALSE
+"255",2008,"WV","democrat",9,8,7.33434219180999,0.501026347884766,FALSE
+"256",2008,"WV","republican",9,8,14.7239596467947,0.0647404232703883,FALSE
+"257",2012,"AL","democrat",9,8,19.566697155858,0.0121057777695829,TRUE
+"258",2012,"AL","republican",9,8,8.39219819016802,0.396126084515816,FALSE
+"259",2012,"AR","democrat",9,8,11.3007414978716,0.185234052449282,FALSE
+"260",2012,"AR","republican",9,8,13.8456664935843,0.0858778152998957,FALSE
+"261",2012,"CA","democrat",9,8,15.1160426405656,0.0569279726008399,FALSE
+"262",2012,"CA","republican",9,8,10.5884826989351,0.226123698290581,FALSE
+"263",2012,"CO","democrat",9,8,2.85328342878992,0.943224519051038,FALSE
+"264",2012,"CO","republican",9,8,3.53110723953167,0.89676205312795,FALSE
+"265",2012,"FL","democrat",9,8,11.1481392294765,0.193445890555605,FALSE
+"266",2012,"FL","republican",9,8,11.7155635703883,0.16435303693087,FALSE
+"267",2012,"GA","democrat",9,8,10.6410264500068,0.222880182075116,FALSE
+"268",2012,"GA","republican",9,8,6.14763560791929,0.630698559083516,FALSE
+"269",2012,"IA","democrat",9,8,15.8044341151723,0.0452663438147835,TRUE
+"270",2012,"IA","republican",9,8,42.9466495689257,8.98984945434499e-07,TRUE
+"271",2012,"ID","democrat",9,8,6.03286915792925,0.643549911101364,FALSE
+"272",2012,"ID","republican",9,8,6.97099101804973,0.539765744199449,FALSE
+"273",2012,"IL","democrat",9,8,11.0617362461602,0.198225618177981,FALSE
+"274",2012,"IL","republican",9,8,9.92441675963986,0.27037101780447,FALSE
+"275",2012,"IN","democrat",9,8,21.6956823751411,0.00551193128661962,TRUE
+"276",2012,"IN","republican",9,8,6.9786400340604,0.538939001238247,FALSE
+"277",2012,"KS","democrat",9,8,11.5525288457067,0.172313122515171,FALSE
+"278",2012,"KS","republican",9,8,14.4012047885664,0.0718891452992719,FALSE
+"279",2012,"KY","democrat",9,8,16.803857403478,0.0322175495278308,TRUE
+"280",2012,"KY","republican",9,8,11.451906149186,0.17738420853117,FALSE
+"281",2012,"LA","democrat",9,8,8.2829825308793,0.406327149713754,FALSE
+"282",2012,"LA","republican",9,8,10.2860990646021,0.245516951723021,FALSE
+"283",2012,"MI","democrat",9,8,11.4704543519997,0.176440245094006,FALSE
+"284",2012,"MI","republican",9,8,9.11703850408761,0.332519201483474,FALSE
+"285",2012,"MN","democrat",9,8,3.3374607865486,0.911431838040515,FALSE
+"286",2012,"MN","republican",9,8,16.3990503089255,0.0370118506528554,TRUE
+"287",2012,"MO","democrat",9,8,7.20651590410077,0.514524083968881,FALSE
+"288",2012,"MO","republican",9,8,13.6583334339386,0.091117103660595,FALSE
+"289",2012,"MS","democrat",9,8,13.1564525342758,0.106578747449128,FALSE
+"290",2012,"MS","republican",9,8,14.9709046030857,0.0597136767643602,FALSE
+"291",2012,"MT","democrat",9,8,8.24120117104418,0.410270725103703,FALSE
+"292",2012,"MT","republican",9,8,7.69920874589872,0.463390034264531,FALSE
+"293",2012,"NC","democrat",9,8,6.04699784330526,0.641967308773559,FALSE
+"294",2012,"NC","republican",9,8,3.99985485580374,0.857136555681558,FALSE
+"295",2012,"ND","democrat",9,8,6.4213558625954,0.600143452454753,FALSE
+"296",2012,"ND","republican",9,8,18.3906109045235,0.018481274884934,TRUE
+"297",2012,"NE","democrat",9,8,6.24257411626849,0.620080270618904,FALSE
+"298",2012,"NE","republican",9,8,11.0046077897512,0.201438251643732,FALSE
+"299",2012,"NY","democrat",9,8,4.39603224380502,0.819742388018847,FALSE
+"300",2012,"NY","republican",9,8,10.9952165787241,0.201970381322874,FALSE
+"301",2012,"OH","democrat",9,8,8.41987775238084,0.393565649435708,FALSE
+"302",2012,"OH","republican",9,8,14.1344262854289,0.0783282338892275,FALSE
+"303",2012,"OK","democrat",9,8,7.91308206501877,0.442006343178932,FALSE
+"304",2012,"OK","republican",9,8,5.5610507432855,0.696267103712901,FALSE
+"305",2012,"PA","democrat",9,8,13.2082269063917,0.104883179613993,FALSE
+"306",2012,"PA","republican",9,8,4.52263767951024,0.807164028008962,FALSE
+"307",2012,"SC","democrat",9,8,4.50563389594732,0.808869189167544,FALSE
+"308",2012,"SC","republican",9,8,6.28659828660496,0.615162629390995,FALSE
+"309",2012,"SD","democrat",9,8,2.35110149637298,0.968313005144745,FALSE
+"310",2012,"SD","republican",9,8,11.2811288786377,0.186273156174372,FALSE
+"311",2012,"TN","democrat",9,8,4.37796959891313,0.821514076741629,FALSE
+"312",2012,"TN","republican",9,8,6.88053688359108,0.549575114142804,FALSE
+"313",2012,"TX","democrat",9,8,5.3114034890292,0.72383319342858,FALSE
+"314",2012,"TX","republican",9,8,7.62432814039864,0.47099941494512,FALSE
+"315",2012,"VA","democrat",9,8,10.9547781232917,0.204274723597163,FALSE
+"316",2012,"VA","republican",9,8,6.97284139232807,0.539565706222249,FALSE
+"317",2012,"WI","democrat",9,8,5.40360339875523,0.713694919452803,FALSE
+"318",2012,"WI","republican",9,8,10.3369222046383,0.24217005907457,FALSE
+"319",2012,"WV","democrat",9,8,4.69714946146806,0.789400252303631,FALSE
+"320",2012,"WV","republican",9,8,7.70211405293623,0.463096047685897,FALSE
+"321",2016,"AL","democrat",9,8,10.2017452243419,0.251150666382048,FALSE
+"322",2016,"AL","republican",9,8,10.5812345325193,0.226574037003409,FALSE
+"323",2016,"AR","democrat",9,8,16.0475313895696,0.0417048224134926,TRUE
+"324",2016,"AR","republican",9,8,12.5127212149534,0.129751552206038,FALSE
+"325",2016,"CA","democrat",9,8,16.473242598933,0.0360862308675954,TRUE
+"326",2016,"CA","republican",9,8,19.7682571113964,0.0112492851273139,TRUE
+"327",2016,"CO","democrat",9,8,5.33460456386639,0.721287356240623,FALSE
+"328",2016,"CO","republican",9,8,3.71141248084361,0.882177319752456,FALSE
+"329",2016,"FL","democrat",9,8,7.05598987899142,0.530604022170678,FALSE
+"330",2016,"FL","republican",9,8,8.83344700427053,0.356540537316824,FALSE
+"331",2016,"GA","democrat",9,8,7.92983305714133,0.440354146369781,FALSE
+"332",2016,"GA","republican",9,8,9.80634899987068,0.278881676165637,FALSE
+"333",2016,"IA","democrat",9,8,11.9095306136567,0.15528628084872,FALSE
+"334",2016,"IA","republican",9,8,35.7813779207616,1.92543173305018e-05,TRUE
+"335",2016,"ID","democrat",9,8,9.96995450447343,0.267141056060258,FALSE
+"336",2016,"ID","republican",9,8,4.66973830573677,0.792220930674246,FALSE
+"337",2016,"IL","democrat",9,8,4.07174125421315,0.850593363535913,FALSE
+"338",2016,"IL","republican",9,8,14.6050933022393,0.0672945890931822,FALSE
+"339",2016,"IN","democrat",9,8,14.5684895192856,0.068099326715975,FALSE
+"340",2016,"IN","republican",9,8,13.1677152664692,0.106207864886529,FALSE
+"341",2016,"KS","democrat",9,8,8.00202530775891,0.433272306450796,FALSE
+"342",2016,"KS","republican",9,8,12.2474194821589,0.140501335196242,FALSE
+"343",2016,"KY","democrat",9,8,22.2207123914207,0.00452299493943032,TRUE
+"344",2016,"KY","republican",9,8,18.3255432883689,0.0189139654624131,TRUE
+"345",2016,"LA","democrat",9,8,5.71471891144615,0.679152365697927,FALSE
+"346",2016,"LA","republican",9,8,13.1860200927112,0.105607506176117,FALSE
+"347",2016,"MI","democrat",9,8,10.3146052718978,0.243635333124547,FALSE
+"348",2016,"MI","republican",9,8,25.1121548871009,0.0014879600314729,TRUE
+"349",2016,"MN","democrat",9,8,1.9321379235499,0.983022086915846,FALSE
+"350",2016,"MN","republican",9,8,9.28294524200631,0.318992257882081,FALSE
+"351",2016,"MO","democrat",9,8,6.21716122666063,0.622920934222938,FALSE
+"352",2016,"MO","republican",9,8,12.3672963730751,0.135552968932415,FALSE
+"353",2016,"MS","democrat",9,8,9.24581442395849,0.321985747280939,FALSE
+"354",2016,"MS","republican",9,8,22.1381273712987,0.00466631151640387,TRUE
+"355",2016,"MT","democrat",9,8,2.62078288625573,0.955860519435694,FALSE
+"356",2016,"MT","republican",9,8,8.60019364087659,0.377136519743501,FALSE
+"357",2016,"NC","democrat",9,8,10.25758048642,0.24741060252932,FALSE
+"358",2016,"NC","republican",9,8,2.95802589104988,0.936963941626002,FALSE
+"359",2016,"ND","democrat",9,8,0.920406399283084,0.998702954131544,FALSE
+"360",2016,"ND","republican",9,8,10.4478810180547,0.23498615111446,FALSE
+"361",2016,"NE","democrat",9,8,9.00083092449816,0.342225864776436,FALSE
+"362",2016,"NE","republican",9,8,12.6607792538708,0.124066386053513,FALSE
+"363",2016,"NY","democrat",9,8,12.7789305517012,0.119685668235598,FALSE
+"364",2016,"NY","republican",9,8,11.0139989976224,0.200907257260298,FALSE
+"365",2016,"OH","democrat",9,8,10.2160862702675,0.250185925648277,FALSE
+"366",2016,"OH","republican",9,8,11.0814084879268,0.197129015422654,FALSE
+"367",2016,"OK","democrat",9,8,17.8429685996,0.0224350833327883,TRUE
+"368",2016,"OK","republican",9,8,8.9812462732782,0.343880471955715,FALSE
+"369",2016,"PA","democrat",9,8,11.7131177919315,0.164470138490264,FALSE
+"370",2016,"PA","republican",9,8,11.5005350384103,0.174918216879663,FALSE
+"371",2016,"SC","democrat",9,8,7.54298408198435,0.47933460593718,FALSE
+"372",2016,"SC","republican",9,8,9.34342842986198,0.314158049512184,FALSE
+"373",2016,"SD","democrat",9,8,10.6571290581235,0.221893577258534,FALSE
+"374",2016,"SD","republican",9,8,5.23276388933269,0.732432966190109,FALSE
+"375",2016,"TN","democrat",9,8,5.15531379224023,0.740854354468394,FALSE
+"376",2016,"TN","republican",9,8,5.22311654873705,0.733484674357819,FALSE
+"377",2016,"TX","democrat",9,8,14.1624322990293,0.0776286926401978,FALSE
+"378",2016,"TX","republican",9,8,6.26053845768859,0.618073046534212,FALSE
+"379",2016,"VA","democrat",9,8,15.1925453570223,0.0555079086712975,FALSE
+"380",2016,"VA","republican",9,8,6.28557228074154,0.615277184203526,FALSE
+"381",2016,"WI","democrat",9,8,5.86578048018678,0.662263476965685,FALSE
+"382",2016,"WI","republican",9,8,5.13657741457663,0.742883818721818,FALSE
+"383",2016,"WV","democrat",9,8,5.10159977719103,0.74666388000252,FALSE
+"384",2016,"WV","republican",9,8,11.8117069811665,0.159804848875069,FALSE
+"385",2020,"AL","democrat",9,8,6.17853536014935,0.627240917532499,FALSE
+"386",2020,"AL","republican",9,8,14.263948710905,0.0751398499228102,FALSE
+"387",2020,"AR","democrat",9,8,12.0769405585802,0.147803859183617,FALSE
+"388",2020,"AR","republican",9,8,13.9055620606631,0.0842603574808239,FALSE
+"389",2020,"CA","democrat",9,8,11.8598712646747,0.157566446143055,FALSE
+"390",2020,"CA","republican",9,8,18.1602287392508,0.0200567894164739,TRUE
+"391",2020,"CO","democrat",9,8,12.2138096937049,0.141916138586553,FALSE
+"392",2020,"CO","republican",9,8,9.37908411817832,0.31133259071919,FALSE
+"393",2020,"FL","democrat",9,8,3.3477973598028,0.910675828949366,FALSE
+"394",2020,"FL","republican",9,8,11.2849210860624,0.186071867303369,FALSE
+"395",2020,"GA","democrat",9,8,13.3063040988786,0.101736227773141,FALSE
+"396",2020,"GA","republican",9,8,10.0726464525539,0.25996407758712,FALSE
+"397",2020,"IA","democrat",9,8,4.21844904136225,0.836895874288284,FALSE
+"398",2020,"IA","republican",9,8,29.2127105866702,0.000290961870590204,TRUE
+"399",2020,"ID","democrat",9,8,11.0953265714659,0.196356152048959,FALSE
+"400",2020,"ID","republican",9,8,3.63982590277466,0.888071046744227,FALSE
+"401",2020,"IL","democrat",9,8,7.9562490656046,0.437755503958176,FALSE
+"402",2020,"IL","republican",9,8,10.1607394485167,0.253924930749587,FALSE
+"403",2020,"IN","democrat",9,8,15.1254789280632,0.0567510352586244,FALSE
+"404",2020,"IN","republican",9,8,14.9886052783869,0.0593674021084191,FALSE
+"405",2020,"KS","democrat",9,8,8.96295331095832,0.345430816830723,FALSE
+"406",2020,"KS","republican",9,8,5.04767670112745,0.752468439994513,FALSE
+"407",2020,"KY","democrat",9,8,7.81275682381551,0.451971242454421,FALSE
+"408",2020,"KY","republican",9,8,21.8267301655952,0.00524716648361496,TRUE
+"409",2020,"LA","democrat",9,8,3.36488385597384,0.909419338555587,FALSE
+"410",2020,"LA","republican",9,8,8.77136290235343,0.361949255090739,FALSE
+"411",2020,"MI","democrat",9,8,11.7100016651073,0.164619436916225,FALSE
+"412",2020,"MI","republican",9,8,9.69365571208131,0.287188903847721,FALSE
+"413",2020,"MN","democrat",9,8,6.53501485619462,0.587526449224526,FALSE
+"414",2020,"MN","republican",9,8,10.8268571403931,0.21170403308935,FALSE
+"415",2020,"MO","democrat",9,8,6.30923566696728,0.612635835971595,FALSE
+"416",2020,"MO","republican",9,8,14.2522385756681,0.0754232301481849,FALSE
+"417",2020,"MS","democrat",9,8,5.39052948226621,0.71513587097863,FALSE
+"418",2020,"MS","republican",9,8,13.8515473568033,0.0857177853141095,FALSE
+"419",2020,"MT","democrat",9,8,3.36107216273158,0.909700371585748,FALSE
+"420",2020,"MT","republican",9,8,3.17180079415388,0.923117819702478,FALSE
+"421",2020,"NC","democrat",9,8,4.41487890119897,0.817887565864005,FALSE
+"422",2020,"NC","republican",9,8,7.10517433821986,0.525328902407671,FALSE
+"423",2020,"ND","democrat",9,8,6.53453367384467,0.58757974858815,FALSE
+"424",2020,"ND","republican",9,8,15.8025261066004,0.0452953763654812,TRUE
+"425",2020,"NE","democrat",9,8,10.7710015731123,0.215015199091476,FALSE
+"426",2020,"NE","republican",9,8,9.52739941549947,0.299773822461828,FALSE
+"427",2020,"NY","democrat",9,8,10.9595218003015,0.204003316111206,FALSE
+"428",2020,"NY","republican",9,8,10.2420858647082,0.24844416612455,FALSE
+"429",2020,"OH","democrat",9,8,16.858937933119,0.0316119284873417,TRUE
+"430",2020,"OH","republican",9,8,10.6861170461941,0.220126216955308,FALSE
+"431",2020,"OK","democrat",9,8,6.8871919472058,0.548851402283375,FALSE
+"432",2020,"OK","republican",9,8,6.19707800712377,0.625166744068808,FALSE
+"433",2020,"PA","democrat",9,8,16.6906545982202,0.0334963944780366,TRUE
+"434",2020,"PA","republican",9,8,5.67897715086607,0.683140333643395,FALSE
+"435",2020,"SC","democrat",9,8,8.16449842471943,0.417568743100502,FALSE
+"436",2020,"SC","republican",9,8,18.2405455671455,0.0194936377223644,TRUE
+"437",2020,"SD","democrat",9,8,6.8149882072597,0.556719441566686,FALSE
+"438",2020,"SD","republican",9,8,5.2253329300008,0.733243121158521,FALSE
+"439",2020,"TN","democrat",9,8,4.88617366974287,0.769669923785068,FALSE
+"440",2020,"TN","republican",9,8,9.7773188390759,0.281004435208412,FALSE
+"441",2020,"TX","democrat",9,8,5.39518885115004,0.714622455957681,FALSE
+"442",2020,"TX","republican",9,8,4.18967041685884,0.839617971316475,FALSE
+"443",2020,"VA","democrat",9,8,7.29376831510652,0.505294320596484,FALSE
+"444",2020,"VA","republican",9,8,4.33565248661544,0.825641485665999,FALSE
+"445",2020,"WI","democrat",9,8,11.3576184048486,0.182247556949751,FALSE
+"446",2020,"WI","republican",9,8,4.41482786606672,0.817892597087804,FALSE
+"447",2020,"WV","democrat",9,8,2.37151038668495,0.967453488508474,FALSE
+"448",2020,"WV","republican",9,8,10.9228637682531,0.2061082706919,FALSE
