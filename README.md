@@ -16,4 +16,4 @@ Generated graphics are included under /plots/. Some of these don't appear in the
 ## Packages
 In analysis.r, I make frequent use of the pipe operator from [magrittr](https://magrittr.tidyverse.org/) and the various data transformation functions from [dplyr](https://dplyr.tidyverse.org/). The included plots were created using [ggplot2](https://ggplot2.tidyverse.org/) and  palettes from [RColorBrewer](https://cran.r-project.org/web/packages/RColorBrewer/index.html).
 
-You can get magrittr, dplyr, and ggplot2 bundled as part of the larger [TidyVerse](https://www.tidyverse.org/) package.
+You can get magrittr, dplyr, and ggplot2 bundled as part of the larger [Tidyverse](https://www.tidyverse.org/) package.
