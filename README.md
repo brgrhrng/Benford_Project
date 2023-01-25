@@ -1,7 +1,7 @@
+# Benford’s Law and County-Level Votes in US Presidential Elections
+
 ![Graphic showing, for each state in the dataset, whether county-level vote totals followed Benford's law in each election year (based on chi-square goodness of fit, alpha 0.05). Deviations were common for both parties, as is discussed in the paper.](/plots/chisq_summary_8x4.png "Summary graphic")
 
-
-# Benford’s Law and County-Level Votes in US Presidential Elections
 **Purpose:** Assessing adherance of county-level presidential election results to Benford's first digit law in 32 US states, from 1996-2020, to provide a broader context for Biden's "non-Benfordness" in Pennsylvania 2020.
 
 This repository contains code and supplemental graphics for [Groharing and McCune (2022)](https://www.tandfonline.com/doi/abs/10.1080/09332480.2022.2066408?journalCode=ucha20). The full article can additionally be read [here](https://chance.amstat.org/2022/04/benfords-law-votes/).
